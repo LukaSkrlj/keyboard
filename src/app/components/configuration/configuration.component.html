@@ -1,4 +1,8 @@
 <h1 mat-dialog-title>Configuration</h1>
 <mat-form-field>
-  <input (keyup)="validate()" [formControl]="letter" matInput placeholder="Choose a letter" value="a">
+  <input (keyup)="validate()" [formControl]="letter" matInput placeholder="Choose a letter">
 </mat-form-field>
+
+<!-- Add a button to confirm the changes -->
+<button mat-button (click)="confirm()">Confirm</button>
+<button mat-button (click)="cancel()">Cancel</button>

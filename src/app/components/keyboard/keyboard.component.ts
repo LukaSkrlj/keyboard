@@ -24,77 +24,78 @@ export class KeyboardComponent implements OnInit {
   constructor(
     protected _fabricService: FabricService,
     protected _zone: NgZone,
-  ) {}
+  ) {
+  }
 
-  onToogleDraw() {}
+  onToogleDraw() {
+  }
 
   public ngOnInit(): void {
     this._zone.runOutsideAngular(() => {
-      this._canvas = new fabric.Canvas('fabricSurface', {
-        backgroundColor: '#ebebef',
-        selection: false,
-        preserveObjectStacking: true,
-        width: 500,
-        height: 500,
-      });
-      const rect = new fabric.Rect({
-        left: 100,
-        top: 50,
-        fill: '#D81B60',
-        width: 100,
-        height: 100,
-        strokeWidth: 2,
-        stroke: '#880E4F',
-        rx: 10,
-        ry: 10,
-        angle: 45,
-        hasControls: true,
-      });
-
-      this._canvas.add(rect);
-
-      // create a rectangle object
-      const rect2 = new fabric.Rect({
-        left: 200,
-        top: 50,
-        fill: '#F06292',
-        width: 100,
-        height: 100,
-        strokeWidth: 2,
-        stroke: '#880E4F',
-        rx: 10,
-        ry: 10,
-        angle: 45,
-        hasControls: true,
-      });
-
-      this._canvas.add(rect2);
-
-      const circle1 = new fabric.Circle({
-        radius: 65,
-        fill: '#039BE5',
-        left: 0,
-      });
-
-      const circle2 = new fabric.Circle({
-        radius: 65,
-        fill: '#4FC3F7',
-        left: 110,
-        opacity: 0.7,
-      });
-
-      const group = new fabric.Group([circle1, circle2], {
-        left: 40,
-        top: 250,
-      });
-
-      this._canvas.add(group);
-
-      this._fabricService.canvas = this._canvas;
+      this.initializeCanvas();
     });
   }
 
-  onAdd() {
-    this._fabricService.Add();
+  initializeCanvas(): void {
+    const canvasWidth = prompt('Enter the canvas width:');
+    const canvasHeight = prompt('Enter the canvas height:');
+
+    if (canvasWidth && canvasHeight) {
+      const width = parseInt(canvasWidth, 10);
+      const height = parseInt(canvasHeight, 10);
+
+      if (!isNaN(width) && !isNaN(height)) {
+        this._canvas = new fabric.Canvas('fabricSurface', {
+          backgroundColor: '#ebebef',
+          selection: false,
+          preserveObjectStacking: true,
+          width: width,
+          height: height,
+        });
+
+        this._fabricService.canvas = this._canvas;
+      } else {
+        alert('Invalid input. Please enter valid numbers for width and height.');
+      }
+    } else {
+      alert('Invalid input. Please enter values for both width and height.');
+    }
+  }
+
+  onAddShape(shape: string): void {
+    const letterInput = prompt('Enter a letter to be inside the shape:');
+
+    if (letterInput) {
+      const letter = letterInput.trim().charAt(0).toUpperCase(); // Take the first character and convert to uppercase
+
+      switch (shape) {
+        case 'rect':
+          this._fabricService.AddRectKey(letter);
+          break;
+        case 'triangle':
+          this._fabricService.AddTriangleKey(letter);
+          break;
+        case 'circle':
+          this._fabricService.AddCircleKey(letter);
+          break;
+        case 'oval':
+          this._fabricService.AddOvalKey(letter);
+          break;
+        case 'polygon':
+          const edgesInput = prompt('Enter the number of edges for the custom shape:');
+          if (edgesInput) {
+            const edges = parseInt(edgesInput, 10);
+
+            if (!isNaN(edges) && edges >= 3) {
+              this._fabricService.AddPolygonKey(letter, edges);
+            } else {
+              alert('Invalid input. Please enter a valid number of edges (minimum 3).');
+            }
+          }
+          break;
+        default:
+          console.error(`Invalid shape: ${shape}`);
+      }
+    }
   }
 }
