@@ -62,7 +62,7 @@ export class FabricService {
       offsetY: -16,
       offsetX: 72,
       cursorStyle: 'pointer',
-      mouseUpHandler: this.openConfiguration.bind(this),
+      mouseUpHandler: (eventData, target) => this.openConfiguration(eventData, target),
       render: this.renderIcon(this.configurationImg),
       sizeX: 24,
       sizeY: 24,
@@ -185,7 +185,7 @@ export class FabricService {
     this._polylines[name] = polyLine;
   }
 
-  Add(): void {
+  AddRectKey(letter: string): void {
     const rect = new fabric.Rect({
       left: 100,
       top: 50,
@@ -197,8 +197,134 @@ export class FabricService {
       strokeWidth: 4,
     });
 
-    this._canvas?.add(rect);
-    this._canvas?.setActiveObject(rect);
+    const text = new fabric.Text(letter, {
+      left: rect.left + rect.width / 2,
+      top: rect.top + rect.height / 2,
+      fontSize: 16,
+      fill: 'black',
+      originX: 'center',
+      originY: 'center',
+    });
+
+    const group = new fabric.Group([rect, text], {
+      selectable: false,
+    });
+
+    this._canvas?.add(group);
+    this._canvas?.setActiveObject(group);
+  }
+
+  AddTriangleKey(letter: string): void {
+    const triangle = new fabric.Triangle({
+      left: 100,
+      top: 50,
+      fill: 'blue',
+      width: 200,
+      height: 100,
+      objectCaching: false,
+      stroke: 'darkblue',
+      strokeWidth: 4,
+    });
+
+    const text = new fabric.Text(letter, {
+      left: triangle.left + triangle.width / 2,
+      top: triangle.top + triangle.height / 2,
+      fontSize: 16,
+      fill: 'black',
+      originX: 'center',
+      originY: 'center',
+    });
+
+    const group = new fabric.Group([triangle, text], {
+      selectable: false,
+    });
+
+    this._canvas?.add(group);
+    this._canvas?.setActiveObject(group);
+  }
+
+  AddCircleKey(letter: string): void {
+    const circle = new fabric.Circle({
+      left: 100,
+      top: 50,
+      fill: 'red',
+      radius: 50,
+      objectCaching: false,
+      stroke: 'darkred',
+      strokeWidth: 4,
+    });
+
+    const text = new fabric.Text(letter, {
+      left: circle.left + circle.radius,
+      top: circle.top,
+      fontSize: 16,
+      fill: 'black',
+      originX: 'left',
+      originY: 'top',
+    });
+
+    const group = new fabric.Group([circle, text], {
+      selectable: false,
+    });
+
+    this._canvas?.add(group);
+    this._canvas?.setActiveObject(group);
+  }
+
+  AddOvalKey(letter: string): void {
+    const oval = new fabric.Ellipse({
+      left: 100,
+      top: 50,
+      fill: 'green',
+      rx: 100,
+      ry: 50,
+      objectCaching: false,
+      stroke: 'darkgreen',
+      strokeWidth: 4,
+    });
+
+    const text = new fabric.Text(letter, {
+      left: oval.left + oval.rx,
+      top: oval.top + oval.ry,
+      fontSize: 16,
+      fill: 'black',
+      originX: 'center',
+      originY: 'center',
+    });
+
+    const group = new fabric.Group([oval, text], {
+      selectable: false,
+    });
+
+    this._canvas?.add(group);
+    this._canvas?.setActiveObject(group);
+  }
+
+  AddPolygonKey(letter: string, edges: number): void {
+    const customShape = new fabric.Polygon(this.calculateRegularPolygonPoints(edges), {
+      left: 100,
+      top: 50,
+      fill: 'purple',
+      objectCaching: false,
+      stroke: 'darkpurple',
+      strokeWidth: 4,
+    });
+
+    const text = new fabric.Text(letter, {
+      left: customShape.left + customShape.width / 2,
+      top: customShape.top + customShape.height / 2,
+      fontSize: 16,
+      fill: 'black',
+      originX: 'center',
+      originY: 'center',
+    });
+
+    const group = new fabric.Group([customShape, text], {
+      selectable: false,
+    });
+
+    this._canvas?.add(group);
+    this._canvas?.setActiveObject(group);
   }
 
   renderIcon(icon) {
@@ -231,11 +357,33 @@ export class FabricService {
     return true;
   }
 
-  openConfiguration(eventData: any, transform: any) {
-    this.dialog.open(ConfigurationComponent, {
-      height: '200px',
-      width: '200px',
-    });
+  openConfiguration(eventData: any, transform: fabric.Transform) {
+    const target = transform?.target;
+    const canvas = target.canvas
+    if (target) {
+      this.dialog.open(ConfigurationComponent, {
+        height: '200px',
+        width: '200px',
+        data: {
+          target: target,
+          canvas: canvas
+        },
+      });
+    }
     return true;
+  }
+
+  calculateRegularPolygonPoints(edges: number): fabric.Point[] {
+    const points: fabric.Point[] = [];
+    const radius = 50; // Adjust the radius as needed
+
+    for (let i = 0; i < edges; i++) {
+      const angle = (2 * Math.PI * i) / edges;
+      const x = radius * Math.cos(angle);
+      const y = radius * Math.sin(angle);
+      points.push(new fabric.Point(x, y));
+    }
+
+    return points;
   }
 }

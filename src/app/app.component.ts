@@ -5,7 +5,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { EditorComponent } from './components/editor/editor.component';
 import { KeyboardComponent } from './components/keyboard/keyboard.component';
-import { ConfigurationComponent } from './components/configuration/configuration.component';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +16,6 @@ import { ConfigurationComponent } from './components/configuration/configuration
     MatToolbarModule,
     EditorComponent,
     KeyboardComponent,
-    ConfigurationComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
