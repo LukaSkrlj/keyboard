@@ -206,9 +206,7 @@ export class FabricService {
       originY: 'center',
     });
 
-    const group = new fabric.Group([rect, text], {
-      selectable: false,
-    });
+    const group = new fabric.Group([rect, text], {});
 
     this._canvas?.add(group);
     this._canvas?.setActiveObject(group);
@@ -235,9 +233,7 @@ export class FabricService {
       originY: 'center',
     });
 
-    const group = new fabric.Group([triangle, text], {
-      selectable: false,
-    });
+    const group = new fabric.Group([triangle, text], {});
 
     this._canvas?.add(group);
     this._canvas?.setActiveObject(group);
@@ -263,9 +259,7 @@ export class FabricService {
       originY: 'top',
     });
 
-    const group = new fabric.Group([circle, text], {
-      selectable: false,
-    });
+    const group = new fabric.Group([circle, text], {});
 
     this._canvas?.add(group);
     this._canvas?.setActiveObject(group);
@@ -292,9 +286,7 @@ export class FabricService {
       originY: 'center',
     });
 
-    const group = new fabric.Group([oval, text], {
-      selectable: false,
-    });
+    const group = new fabric.Group([oval, text], {});
 
     this._canvas?.add(group);
     this._canvas?.setActiveObject(group);
@@ -319,9 +311,7 @@ export class FabricService {
       originY: 'center',
     });
 
-    const group = new fabric.Group([customShape, text], {
-      selectable: false,
-    });
+    const group = new fabric.Group([customShape, text], {});
 
     this._canvas?.add(group);
     this._canvas?.setActiveObject(group);
