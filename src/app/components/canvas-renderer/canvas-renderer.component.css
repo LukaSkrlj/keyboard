@@ -1,0 +1,8 @@
+/* canvas-renderer.component.css */
+canvas {
+  border: 1px solid #ccc;
+}
+#canvasRenderer {
+  width: 100%; /* Make sure it takes up the full width of the container */
+  height: 100%; /* Make sure it takes up the full height of the container */
+}

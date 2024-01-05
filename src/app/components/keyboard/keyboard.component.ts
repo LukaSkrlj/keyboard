@@ -22,6 +22,9 @@ export class KeyboardComponent implements OnInit {
   @Output() keyPress = new EventEmitter<string>();
   protected _canvas: fabric.Canvas = new fabric.Canvas('fabricSurface');
 
+  @Output() toggleDraw: EventEmitter<fabric.Canvas | null> = new EventEmitter<fabric.Canvas | null>();
+  private _isDrawing = true;
+
   constructor(
     protected _fabricService: FabricService,
     protected _zone: NgZone,
@@ -29,6 +32,7 @@ export class KeyboardComponent implements OnInit {
 
   onToogleDraw() {
     this._canvas.isDrawingMode = !this._canvas.isDrawingMode;
+    this._fabricService.updateCanvasData(this._canvas);
   }
 
   public ngOnInit(): void {
