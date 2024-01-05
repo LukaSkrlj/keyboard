@@ -26,6 +26,9 @@ export class FabricService {
   protected _clipboard: any;
   protected _points: Array<fabric.Circle>;
   protected _polylines: Record<string, fabric.Polyline>;
+  // WE PASS CANVAS DATA FROM KEY EDITOR TO APP
+  private canvasDataSubject = new Subject<fabric.Canvas | null>();
+  canvasData$ = this.canvasDataSubject.asObservable();
 
   constructor(private dialog: MatDialog) {
     fabric.Object.prototype.transparentCorners = false;
@@ -104,6 +107,10 @@ export class FabricService {
     this._canvas?.getActiveObject()?.clone((cloned: Object) => {
       this._clipboard = cloned;
     });
+  }
+
+  updateCanvasData(canvasData: fabric.Canvas | null): void {
+    this.canvasDataSubject.next(canvasData);
   }
 
   onPaste() {

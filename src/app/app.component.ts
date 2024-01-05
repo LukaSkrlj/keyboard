@@ -5,7 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { EditorComponent } from './components/editor/editor.component';
 import { KeyboardComponent } from './components/keyboard/keyboard.component';
-import { FabricService } from './fabric.service';
+import { FabricService } from "./fabric.service";
+import { CanvasRendererComponent } from "./components/canvas-renderer/canvas-renderer.component";
+import { fabric } from "fabric";
 
 @Component({
   selector: 'app-root',
@@ -17,20 +19,25 @@ import { FabricService } from './fabric.service';
     MatToolbarModule,
     EditorComponent,
     KeyboardComponent,
+    CanvasRendererComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  isEdit = false;
+  isEdit = true;
   title = 'keyboard';
   textArea?: HTMLTextAreaElement;
+  canvasData: fabric.Canvas;
   @ViewChild('frameElement') frameElement?: ElementRef;
 
-  constructor(private _fabricService: FabricService) {
-    this._fabricService.keyEvent
-      .asObservable()
-      .subscribe((key) => this.click(key));
+  constructor(private _fabricService: FabricService) {}
+
+  ngOnInit() {
+    this._fabricService.canvasData$.subscribe((canvasData: fabric.Canvas | null) => {
+      this.canvasData = canvasData
+      this.isEdit = canvasData === null;
+    });
   }
 
   load() {
@@ -39,29 +46,6 @@ export class AppComponent {
         this.frameElement.nativeElement.contentWindow.document.getElementById(
           'Transcribe',
         );
-      this.textArea?.dispatchEvent(
-        new KeyboardEvent('keyup', {
-          bubbles: true,
-          cancelable: true,
-          shiftKey: false,
-          key: 'a',
-        }),
-      );
-    }
-  }
-
-  click(key) {
-    if (this.textArea) {
-      console.log('click sub');
-      this.textArea.value += key;
-      this.textArea.dispatchEvent(
-        new KeyboardEvent('keyup', {
-          bubbles: true,
-          cancelable: true,
-          shiftKey: false,
-          key,
-        }),
-      );
     }
   }
 }
