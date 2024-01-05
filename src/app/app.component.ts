@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { EditorComponent } from './components/editor/editor.component';
 import { KeyboardComponent } from './components/keyboard/keyboard.component';
+import { FabricService } from './fabric.service';
 
 @Component({
   selector: 'app-root',
@@ -21,10 +22,16 @@ import { KeyboardComponent } from './components/keyboard/keyboard.component';
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  isEdit = true;
+  isEdit = false;
   title = 'keyboard';
   textArea?: HTMLTextAreaElement;
   @ViewChild('frameElement') frameElement?: ElementRef;
+
+  constructor(private _fabricService: FabricService) {
+    this._fabricService.keyEvent
+      .asObservable()
+      .subscribe((key) => this.click(key));
+  }
 
   load() {
     if (this.frameElement) {
@@ -43,15 +50,16 @@ export class AppComponent {
     }
   }
 
-  click() {
+  click(key) {
     if (this.textArea) {
-      this.textArea.value = 'a';
+      console.log('click sub');
+      this.textArea.value += key;
       this.textArea.dispatchEvent(
         new KeyboardEvent('keyup', {
           bubbles: true,
           cancelable: true,
           shiftKey: false,
-          key: 'a',
+          key,
         }),
       );
     }

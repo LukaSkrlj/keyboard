@@ -4,6 +4,7 @@ import { fabric } from 'fabric';
 import { POINT } from './models';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigurationComponent } from './components/configuration/configuration.component';
+import { Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class FabricService {
@@ -21,6 +22,7 @@ export class FabricService {
   deleteImg = document.createElement('img');
   cloneImg = document.createElement('img');
   configurationImg = document.createElement('img');
+  keyEvent = new Subject<string>();
   protected _clipboard: any;
   protected _points: Array<fabric.Circle>;
   protected _polylines: Record<string, fabric.Polyline>;
@@ -62,7 +64,8 @@ export class FabricService {
       offsetY: -16,
       offsetX: 72,
       cursorStyle: 'pointer',
-      mouseUpHandler: (eventData, target) => this.openConfiguration(eventData, target),
+      mouseUpHandler: (eventData, target) =>
+        this.openConfiguration(eventData, target),
       render: this.renderIcon(this.configurationImg),
       sizeX: 24,
       sizeY: 24,
@@ -192,9 +195,14 @@ export class FabricService {
       fill: 'yellow',
       width: 200,
       height: 100,
-      objectCaching: false,
+      //objectCaching: false,
       stroke: 'lightgreen',
       strokeWidth: 4,
+      perPixelTargetFind: true,
+    });
+
+    rect.on('mouseup', () => {
+      this.keyEvent.next(letter);
     });
 
     const text = new fabric.Text(letter, {
@@ -219,9 +227,14 @@ export class FabricService {
       fill: 'blue',
       width: 200,
       height: 100,
-      objectCaching: false,
+      // objectCaching: false,
       stroke: 'darkblue',
       strokeWidth: 4,
+      perPixelTargetFind: true,
+    });
+
+    triangle.on('mouseup', () => {
+      this.keyEvent.next(letter);
     });
 
     const text = new fabric.Text(letter, {
@@ -245,9 +258,14 @@ export class FabricService {
       top: 50,
       fill: 'red',
       radius: 50,
-      objectCaching: false,
+      //objectCaching: false,
       stroke: 'darkred',
       strokeWidth: 4,
+      perPixelTargetFind: true,
+    });
+
+    circle.on('mouseup', () => {
+      this.keyEvent.next(letter);
     });
 
     const text = new fabric.Text(letter, {
@@ -272,9 +290,14 @@ export class FabricService {
       fill: 'green',
       rx: 100,
       ry: 50,
-      objectCaching: false,
+      //objectCaching: false,
       stroke: 'darkgreen',
       strokeWidth: 4,
+      perPixelTargetFind: true,
+    });
+
+    oval.on('mouseup', () => {
+      this.keyEvent.next(letter);
     });
 
     const text = new fabric.Text(letter, {
@@ -293,13 +316,21 @@ export class FabricService {
   }
 
   AddPolygonKey(letter: string, edges: number): void {
-    const customShape = new fabric.Polygon(this.calculateRegularPolygonPoints(edges), {
-      left: 100,
-      top: 50,
-      fill: 'purple',
-      objectCaching: false,
-      stroke: 'darkpurple',
-      strokeWidth: 4,
+    const customShape = new fabric.Polygon(
+      this.calculateRegularPolygonPoints(edges),
+      {
+        left: 100,
+        top: 50,
+        fill: 'purple',
+        //objectCaching: false,
+        stroke: 'darkpurple',
+        strokeWidth: 4,
+        perPixelTargetFind: true,
+      },
+    );
+
+    customShape.on('mouseup', () => {
+      this.keyEvent.next(letter);
     });
 
     const text = new fabric.Text(letter, {
@@ -349,14 +380,14 @@ export class FabricService {
 
   openConfiguration(eventData: any, transform: fabric.Transform) {
     const target = transform?.target;
-    const canvas = target.canvas
+    const canvas = target.canvas;
     if (target) {
       this.dialog.open(ConfigurationComponent, {
         height: '200px',
         width: '200px',
         data: {
           target: target,
-          canvas: canvas
+          canvas: canvas,
         },
       });
     }

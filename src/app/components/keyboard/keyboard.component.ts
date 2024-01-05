@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, EventEmitter, NgZone, OnInit, Output } from '@angular/core';
 import { fabric } from 'fabric';
 import { FabricService } from '../../fabric.service';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,15 +19,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   styleUrl: './keyboard.component.css',
 })
 export class KeyboardComponent implements OnInit {
+  @Output() keyPress = new EventEmitter<string>();
   protected _canvas: fabric.Canvas = new fabric.Canvas('fabricSurface');
 
   constructor(
     protected _fabricService: FabricService,
     protected _zone: NgZone,
-  ) {
-  }
+  ) {}
 
   onToogleDraw() {
+    this._canvas.isDrawingMode = !this._canvas.isDrawingMode;
   }
 
   public ngOnInit(): void {
@@ -55,7 +56,9 @@ export class KeyboardComponent implements OnInit {
 
         this._fabricService.canvas = this._canvas;
       } else {
-        alert('Invalid input. Please enter valid numbers for width and height.');
+        alert(
+          'Invalid input. Please enter valid numbers for width and height.',
+        );
       }
     } else {
       alert('Invalid input. Please enter values for both width and height.');
@@ -82,14 +85,18 @@ export class KeyboardComponent implements OnInit {
           this._fabricService.AddOvalKey(letter);
           break;
         case 'polygon':
-          const edgesInput = prompt('Enter the number of edges for the custom shape:');
+          const edgesInput = prompt(
+            'Enter the number of edges for the custom shape:',
+          );
           if (edgesInput) {
             const edges = parseInt(edgesInput, 10);
 
             if (!isNaN(edges) && edges >= 3) {
               this._fabricService.AddPolygonKey(letter, edges);
             } else {
-              alert('Invalid input. Please enter a valid number of edges (minimum 3).');
+              alert(
+                'Invalid input. Please enter a valid number of edges (minimum 3).',
+              );
             }
           }
           break;
