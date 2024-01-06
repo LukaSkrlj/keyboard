@@ -1,7 +1,3 @@
-<div *ngIf="!isEdit" >
-  <iframe #frameElement height="80%" width="100%" src="../assets/index.html" frameborder="0" (load)="load()"></iframe>
-  <app-canvas-renderer id="canvasRenderer" [canvasData]="canvasData" [textArea]="textArea"></app-canvas-renderer>
-</div>
-<div *ngIf="isEdit">
-  <app-keyboard></app-keyboard>
-</div>
+<!-- <app-canvas-renderer [canvasData]="canvasData" [textArea]="textArea" id="canvasRenderer"></app-canvas-renderer>-->
+
+<app-keyboard></app-keyboard>

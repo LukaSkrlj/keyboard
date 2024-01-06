@@ -6,7 +6,9 @@ canvas {
 
 .drag-container {
   display: inline-block;
-  position: relative;
+  position: fixed;
+  top: 25%;
+  left: 25%;
   box-sizing: border-box;
   z-index: 1;
   background-color: transparent;
@@ -26,7 +28,8 @@ canvas {
 .buttons {
   display: flex;
   justify-content: space-evenly;
-  margin: 10px;
+  padding: 10px;
+  background-color: lightgray;
 }
 
 .handle {
@@ -38,4 +41,17 @@ canvas {
   width: 24px;
   z-index: 3;
   height: 24px;
+}
+
+.toggle-button {
+  position: absolute;
+  top: 10px;
+  right: 40px;
+  z-index: 3;
+  color: white;
+  cursor: pointer;
+}
+
+a {
+  color: white;
 }

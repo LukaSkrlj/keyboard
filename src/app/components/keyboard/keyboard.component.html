@@ -1,3 +1,6 @@
+<iframe #frameElement (load)="load()" frameborder="0" height="100%" src="../../../assets/index.html"
+        width="100%"></iframe>
+
 <div #canvasWrapper cdkDrag class="drag-container">
   <div class="canvas-wrapper">
     <div cdkDragHandle class="handle">
@@ -7,9 +10,12 @@
         <path d="M0 0h24v24H0z" fill="none"></path>
       </svg>
     </div>
+    <div (click)="onToggleDraw()" class="toggle-button">
+      <mat-icon>edit</mat-icon>
+    </div>
     <canvas id="fabricSurface"></canvas>
   </div>
-  <div class="buttons">
+  <div *ngIf="isDraw" class="buttons">
     <button (click)="onAddShape('rect')" color="primary" mat-mini-fab>
       <mat-icon>rectangle</mat-icon>
     </button>
@@ -24,6 +30,29 @@
     <button (click)="onAddShape('polygon')" color="primary" mat-mini-fab>
       <mat-icon>polyline</mat-icon>
     </button>
-    <button (click)="onToogleDraw()" color="primary" mat-flat-button>Toogle drawing</button>
+    <button (click)="onSave()" color="primary" mat-mini-fab>
+      <mat-icon>save</mat-icon>
+    </button>
+    <button (click)="onDelete()" color="primary" mat-mini-fab>
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button (click)="onDownload()" color="primary" mat-mini-fab>
+      <a [href]="downloadJsonHref" download="download.json">
+        <mat-icon>download</mat-icon>
+      </a>
+    </button>
+    <button (click)="fileInput.click()" color="primary" mat-mini-fab>
+      <mat-icon>upload</mat-icon>
+    </button>
+    <input #fileInput (change)="onFileSelected($event)" hidden id="file" type="file">
+    <button [matMenuTriggerFor]="menu" color="primary" mat-mini-fab>
+      <mat-icon>menu</mat-icon>
+    </button>
   </div>
 </div>
+
+<mat-menu #menu="matMenu">
+  <button (click)="onKeyboardSelect(keyboard)" *ngFor="let keyboard of keyboards" mat-menu-item>
+    <span>{{ keyboard }}</span>
+  </button>
+</mat-menu>

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 
 import { fabric } from 'fabric';
-import { POINT } from './models';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigurationComponent } from './components/configuration/configuration.component';
 import { Subject } from 'rxjs';
@@ -99,43 +98,8 @@ export class FabricService {
     }
   }
 
-  onCopy() {
-    // clone what are you copying since you
-    // may want copy and paste on different moment.
-    // and you do not want the changes happened
-    // later to reflect on the copy.
-    this._canvas?.getActiveObject()?.clone((cloned: Object) => {
-      this._clipboard = cloned;
-    });
-  }
-
   updateCanvasData(canvasData: fabric.Canvas | null): void {
     this.canvasDataSubject.next(canvasData);
-  }
-
-  onPaste() {
-    // clone again, so you can do multiple copies.
-    this._clipboard.clone((clonedObj: any) => {
-      this._canvas?.discardActiveObject();
-      clonedObj.set({
-        left: clonedObj.left,
-        top: clonedObj.top,
-        evented: true,
-      });
-      if (clonedObj.type === 'activeSelection') {
-        // active selection needs a reference to the canvas.
-        clonedObj.canvas = this._canvas;
-        clonedObj?.forEachObject((obj: fabric.Object) => {
-          this._canvas?.add(obj);
-        });
-        // this should solve the unselectability
-        clonedObj.setCoords();
-      } else {
-        this._canvas?.add(clonedObj);
-      }
-      this._canvas?.setActiveObject(clonedObj);
-      this._canvas?.requestRenderAll();
-    });
   }
 
   public clear(): void {
@@ -154,45 +118,6 @@ export class FabricService {
 
       this._canvas.renderAll();
     }
-  }
-
-  public addPoint(p: POINT): void {
-    const circle: fabric.Circle = new fabric.Circle({
-      left: p.x - this.circleRadius,
-      top: p.y - this.circleRadius,
-      fill: this.circleFill,
-      radius: this.circleRadius,
-    });
-
-    this._points.push(circle);
-
-    if (this._canvas) {
-      this._canvas.add(circle);
-      this._canvas.renderAll();
-    }
-  }
-
-  public addPolyline(
-    name: string,
-    points: Array<POINT>,
-    clear: boolean = true,
-  ): void {
-    const polyLine: fabric.Polyline = new fabric.Polyline(points, {
-      strokeWidth: this.strokeWidth,
-      stroke: this.strokeColor,
-      fill: 'transparent',
-    });
-
-    if (this._canvas) {
-      if (clear && this._polylines[name] !== undefined) {
-        this._canvas.remove(this._polylines[name]);
-      }
-
-      this._canvas.add(polyLine);
-      this._canvas.renderAll();
-    }
-
-    this._polylines[name] = polyLine;
   }
 
   AddRectKey(letter: string): void {

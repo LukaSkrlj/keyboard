@@ -31,7 +31,6 @@ import { MatDialogModule } from '@angular/material/dialog';
   styleUrl: './app.component.css',
 })
 export class AppComponent implements OnInit {
-  isEdit = true;
   title = 'keyboard';
   textArea?: HTMLTextAreaElement;
   canvasData: fabric.Canvas;
@@ -43,7 +42,6 @@ export class AppComponent implements OnInit {
     this._fabricService.canvasData$.subscribe(
       (canvasData: fabric.Canvas | null) => {
         this.canvasData = canvasData;
-        this.isEdit = canvasData === null;
       },
     );
   }
