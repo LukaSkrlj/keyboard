@@ -259,43 +259,12 @@ export class FabricService {
     this._canvas?.setActiveObject(group);
   }
 
-  AddCircleKey(letter: string): void {
-    const circle = new fabric.Circle({
-      left: 100,
-      top: 50,
-      fill: 'red',
-      radius: 50,
-      //objectCaching: false,
-      stroke: 'darkred',
-      strokeWidth: 4,
-      perPixelTargetFind: true,
-    });
-
-    circle.on('mouseup', () => {
-      this.keyEvent.next(letter);
-    });
-
-    const text = new fabric.Text(letter, {
-      left: circle.left + circle.radius,
-      top: circle.top,
-      fontSize: 16,
-      fill: 'black',
-      originX: 'left',
-      originY: 'top',
-    });
-
-    const group = new fabric.Group([circle, text], {});
-
-    this._canvas?.add(group);
-    this._canvas?.setActiveObject(group);
-  }
-
   AddOvalKey(letter: string): void {
     const oval = new fabric.Ellipse({
-      left: 100,
+      left: 50,
       top: 50,
       fill: 'green',
-      rx: 100,
+      rx: 50,
       ry: 50,
       //objectCaching: false,
       stroke: 'darkgreen',
@@ -390,8 +359,8 @@ export class FabricService {
     const canvas = target.canvas;
     if (target) {
       this.dialog.open(ConfigurationComponent, {
-        height: '200px',
-        width: '200px',
+        height: '300px',
+        width: '300px',
         data: {
           target: target,
           canvas: canvas,

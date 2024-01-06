@@ -1,7 +1,29 @@
-<canvas id="fabricSurface"></canvas>
-<button (click)="onAddShape('rect')" mat-flat-button color="primary">Rect</button>
-<button (click)="onAddShape('triangle')" mat-flat-button color="primary">Triangle</button>
-<button (click)="onAddShape('circle')" mat-flat-button color="primary">Circle</button>
-<button (click)="onAddShape('oval')" mat-flat-button color="primary">Oval</button>
-<button (click)="onAddShape('polygon')" mat-flat-button color="primary">Polygon</button>
-<button (click)="onToogleDraw()" mat-flat-button color="primary">Toogle drawing</button>
+<div #canvasWrapper cdkDrag class="drag-container">
+  <div class="canvas-wrapper">
+    <div cdkDragHandle class="handle">
+      <svg fill="currentColor" viewBox="0 0 24 24" width="24px">
+        <path
+          d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
+        <path d="M0 0h24v24H0z" fill="none"></path>
+      </svg>
+    </div>
+    <canvas id="fabricSurface"></canvas>
+  </div>
+  <div class="buttons">
+    <button (click)="onAddShape('rect')" color="primary" mat-mini-fab>
+      <mat-icon>rectangle</mat-icon>
+    </button>
+    <button (click)="onAddShape('triangle')" color="primary" mat-mini-fab>
+      <mat-icon>change_history</mat-icon>
+    </button>
+    <button (click)="onAddShape('oval')" color="primary" mat-mini-fab>
+      <mat-icon>
+        circle
+      </mat-icon>
+    </button>
+    <button (click)="onAddShape('polygon')" color="primary" mat-mini-fab>
+      <mat-icon>polyline</mat-icon>
+    </button>
+    <button (click)="onToogleDraw()" color="primary" mat-flat-button>Toogle drawing</button>
+  </div>
+</div>

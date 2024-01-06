@@ -1,13 +1,16 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { EditorComponent } from './components/editor/editor.component';
 import { KeyboardComponent } from './components/keyboard/keyboard.component';
-import { FabricService } from "./fabric.service";
-import { CanvasRendererComponent } from "./components/canvas-renderer/canvas-renderer.component";
-import { fabric } from "fabric";
+import { FabricService } from './fabric.service';
+import { CanvasRendererComponent } from './components/canvas-renderer/canvas-renderer.component';
+import { fabric } from 'fabric';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-root',
@@ -19,12 +22,15 @@ import { fabric } from "fabric";
     MatToolbarModule,
     EditorComponent,
     KeyboardComponent,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDialogModule,
     CanvasRendererComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   isEdit = true;
   title = 'keyboard';
   textArea?: HTMLTextAreaElement;
@@ -34,10 +40,12 @@ export class AppComponent {
   constructor(private _fabricService: FabricService) {}
 
   ngOnInit() {
-    this._fabricService.canvasData$.subscribe((canvasData: fabric.Canvas | null) => {
-      this.canvasData = canvasData
-      this.isEdit = canvasData === null;
-    });
+    this._fabricService.canvasData$.subscribe(
+      (canvasData: fabric.Canvas | null) => {
+        this.canvasData = canvasData;
+        this.isEdit = canvasData === null;
+      },
+    );
   }
 
   load() {
