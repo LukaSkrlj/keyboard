@@ -105,7 +105,18 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
                 'AltGraph',
               ].includes(letter)
             ) {
-              this.textArea.value += letter;
+              const cursorPosition = this.getCursorPosition(this.textArea, options.e);
+              const currentText = this.textArea.value;
+              const newTextValue =
+                currentText.substring(0, cursorPosition.start) +
+                letter +
+                currentText.substring(cursorPosition.end);
+
+              this.textArea.value = newTextValue;
+
+              // Move the cursor to the end of the inserted text
+              const newCursorPosition = cursorPosition.start + letter.length;
+              this.setCursorPosition(this.textArea, newCursorPosition);
             }
             if (letter === 'Enter') {
               this.textArea.value += '\r\n';
@@ -114,6 +125,8 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
               this.isShift = !this.isShift;
             }
 
+
+            // Insert the new text at the specified cursor position
             this.textArea.focus();
             options.e.preventDefault();
             options.e.stopPropagation();
@@ -123,8 +136,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
                 shiftKey: this.isShift,
                 bubbles: true,
                 cancelable: true,
-                key: obj.toObject().objects[1].text,
-                code: obj.toObject().objects[1].text,
+                key: letter,
               }),
             );
           }
@@ -133,6 +145,34 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     }
     this.canvas.discardActiveObject();
     this.canvas.renderAll();
+  }
+
+  getCursorPosition(textarea: HTMLTextAreaElement, event: MouseEvent) {
+    const {selectionStart, selectionEnd} = textarea;
+
+    if (typeof selectionStart === 'number' && typeof selectionEnd === 'number') {
+      return {start: selectionStart, end: selectionEnd};
+    } else {
+      const selection = window.getSelection();
+
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const preSelectionRange = range.cloneRange();
+        preSelectionRange.selectNodeContents(textarea);
+        preSelectionRange.setEnd(range.startContainer, range.startOffset);
+        const start = preSelectionRange.toString().length;
+        const end = start + range.toString().length;
+
+        return {start, end};
+      } else {
+        // Default to start of the textarea
+        return {start: 0, end: 0};
+      }
+    }
+  }
+
+  setCursorPosition(textarea: HTMLTextAreaElement, position: number) {
+    textarea.setSelectionRange(position, position);
   }
 
   onToggleDraw() {
@@ -180,41 +220,44 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
   }
 
   onAddShape(shape: string): void {
-    const letterInput = prompt('Enter a letter to be inside the shape:');
-
-    if (letterInput) {
-      const letter = letterInput.trim().charAt(0);
-
-      switch (shape) {
-        case 'rect':
-          this._fabricService.AddRectKey(letter);
-          break;
-        case 'triangle':
-          this._fabricService.AddTriangleKey(letter);
-          break;
-        case 'oval':
-          this._fabricService.AddOvalKey(letter);
-          break;
-        case 'polygon':
-          const edgesInput = prompt(
-            'Enter the number of edges for the custom shape:',
-          );
-          if (edgesInput) {
-            const edges = parseInt(edgesInput, 10);
-
-            if (!isNaN(edges) && edges >= 3) {
-              this._fabricService.AddPolygonKey(letter, edges);
-            } else {
-              alert(
-                'Invalid input. Please enter a valid number of edges (minimum 3).',
-              );
-            }
-          }
-          break;
-        default:
-          console.error(`Invalid shape: ${shape}`);
+    const dialogRef = this.dialog.open(ConfigurationComponent, {
+      data: {
+        isPolygon: shape === 'polygon',
       }
-    }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        const {letterInput, textColor, buttonColor, borderColor, fontSize, edgeCount} = result;
+        const letter = letterInput.trim().charAt(0);
+
+        switch (shape) {
+          case 'rect':
+            this._fabricService.AddRectKey(letter, textColor, buttonColor, borderColor, fontSize);
+            break;
+          case 'triangle':
+            this._fabricService.AddTriangleKey(letter, textColor, buttonColor, borderColor, fontSize);
+            break;
+          case 'oval':
+            this._fabricService.AddOvalKey(letter, textColor, buttonColor, borderColor, fontSize);
+            break;
+          case 'polygon':
+            if (edgeCount) {
+              const edges = parseInt(edgeCount, 10);
+
+              if (!isNaN(edges) && edges >= 3) {
+                this._fabricService.AddPolygonKey(letter, edges, textColor, buttonColor, borderColor, fontSize);
+              } else {
+                alert(
+                  'Invalid input. Please enter a valid number of edges (minimum 3).',
+                );
+              }
+            }
+            break;
+          default:
+            console.error(`Invalid shape: ${shape}`);
+        }
+      }
+    })
   }
 
   load() {

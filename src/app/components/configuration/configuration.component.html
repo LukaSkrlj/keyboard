@@ -6,6 +6,11 @@
     <input (keyup)="validatePositiveNumber()" [formControl]="fontSize" matInput placeholder="Enter a positive number"
            type="number">
   </mat-form-field>
+  <mat-form-field appearance="outline" *ngIf="isPolygon">
+    <mat-label>Number of edges</mat-label>
+    <input (keyup)="validatePolygon()" [formControl]="edgeCount" matInput placeholder="Enter number of edges"
+           type="number">
+  </mat-form-field>
   <mat-label>Field color</mat-label>
   <input [(colorPicker)]="buttonColor" [style.background]="buttonColor"/>
   <mat-label>Border color</mat-label>

@@ -119,15 +119,15 @@ export class FabricService {
     }
   }
 
-  AddRectKey(letter: string): void {
+  AddRectKey(letter: string, textColor: string, buttonColor: string, borderColor: string, fontSize: number): void {
     const rect = new fabric.Rect({
       left: 100,
       top: 50,
-      fill: 'yellow',
+      fill: buttonColor,
       width: 200,
       height: 100,
       //objectCaching: false,
-      stroke: 'lightgreen',
+      stroke: borderColor,
       strokeWidth: 4,
       perPixelTargetFind: true,
     });
@@ -135,8 +135,8 @@ export class FabricService {
     const text = new fabric.Text(letter, {
       left: rect.left + rect.width / 2,
       top: rect.top + rect.height / 2,
-      fontSize: 16,
-      fill: 'black',
+      fontSize: fontSize,
+      fill: textColor,
       originX: 'center',
       originY: 'center',
     });
@@ -151,15 +151,15 @@ export class FabricService {
     this._canvas?.setActiveObject(group);
   }
 
-  AddTriangleKey(letter: string): void {
+  AddTriangleKey(letter: string, textColor: string, buttonColor: string, borderColor: string, fontSize: number): void {
     const triangle = new fabric.Triangle({
       left: 100,
       top: 50,
-      fill: 'blue',
+      fill: buttonColor,
       width: 200,
       height: 100,
       // objectCaching: false,
-      stroke: 'darkblue',
+      stroke: borderColor,
       strokeWidth: 4,
       perPixelTargetFind: true,
     });
@@ -171,8 +171,8 @@ export class FabricService {
     const text = new fabric.Text(letter, {
       left: triangle.left + triangle.width / 2,
       top: triangle.top + triangle.height / 2,
-      fontSize: 16,
-      fill: 'black',
+      fontSize: fontSize,
+      fill: textColor,
       originX: 'center',
       originY: 'center',
     });
@@ -183,15 +183,15 @@ export class FabricService {
     this._canvas?.setActiveObject(group);
   }
 
-  AddOvalKey(letter: string): void {
+  AddOvalKey(letter: string, textColor: string, buttonColor: string, borderColor: string, fontSize: number): void {
     const oval = new fabric.Ellipse({
       left: 50,
       top: 50,
-      fill: 'green',
+      fill: buttonColor,
       rx: 50,
       ry: 50,
       //objectCaching: false,
-      stroke: 'darkgreen',
+      stroke: borderColor,
       strokeWidth: 4,
       perPixelTargetFind: true,
     });
@@ -203,8 +203,8 @@ export class FabricService {
     const text = new fabric.Text(letter, {
       left: oval.left + oval.rx,
       top: oval.top + oval.ry,
-      fontSize: 16,
-      fill: 'black',
+      fontSize: fontSize,
+      fill: textColor,
       originX: 'center',
       originY: 'center',
     });
@@ -215,15 +215,15 @@ export class FabricService {
     this._canvas?.setActiveObject(group);
   }
 
-  AddPolygonKey(letter: string, edges: number): void {
+  AddPolygonKey(letter: string, edges: number, textColor: string, buttonColor: string, borderColor: string, fontSize: number): void {
     const customShape = new fabric.Polygon(
       this.calculateRegularPolygonPoints(edges),
       {
         left: 100,
         top: 50,
-        fill: 'purple',
+        fill: buttonColor,
         //objectCaching: false,
-        stroke: 'darkpurple',
+        stroke: borderColor,
         strokeWidth: 4,
         perPixelTargetFind: true,
       },
@@ -236,8 +236,8 @@ export class FabricService {
     const text = new fabric.Text(letter, {
       left: customShape.left + customShape.width / 2,
       top: customShape.top + customShape.height / 2,
-      fontSize: 16,
-      fill: 'black',
+      fontSize: fontSize,
+      fill: textColor,
       originX: 'center',
       originY: 'center',
     });

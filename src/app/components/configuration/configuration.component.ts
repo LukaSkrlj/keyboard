@@ -34,36 +34,46 @@ import { ColorPickerModule, ColorPickerService } from 'ngx-color-picker';
 })
 export class ConfigurationComponent {
   fontSize: FormControl;
+  edgeCount: FormControl;
   buttonColor: string;
   borderColor: string;
   textColor: string;
   key: string;
   keyCode: string;
+  isPolygon= false;
 
   constructor(
     public dialogRef: MatDialogRef<ConfigurationComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.fontSize = new FormControl(0);
-    // Set the initial letter based on the existing text content
+    this.edgeCount = new FormControl(3);
+    this.isPolygon = this.data?.isPolygon || false;
     const target = this.data?.target;
-    const textObject = target
-      .getObjects()
-      .find((obj: fabric.Object) => obj.type === 'text');
-    if (textObject instanceof fabric.Text) {
-      this.fontSize.setValue(textObject.get('fontSize') || 16);
-      if (typeof textObject.get('fill') === 'string') {
-        this.textColor = textObject.get('fill').toString();
-      } else {
-        this.textColor = 'black';
+    if(target) {
+      const textObject = target
+        .getObjects()
+        .find((obj: fabric.Object) => obj.type === 'text');
+      if (textObject instanceof fabric.Text) {
+        this.fontSize.setValue(textObject.get('fontSize') || 16);
+        if (typeof textObject.get('fill') === 'string') {
+          this.textColor = textObject.get('fill').toString();
+        } else {
+          this.textColor = 'black';
+        }
       }
-    }
-    const shapeObject = target
-      .getObjects()
-      .find((obj: fabric.Object) => obj.type !== 'text');
-    if (shapeObject) {
-      this.buttonColor = shapeObject.get('fill');
-      this.borderColor = shapeObject.get('stroke');
+      const shapeObject = target
+        .getObjects()
+        .find((obj: fabric.Object) => obj.type !== 'text');
+      if (shapeObject) {
+        this.buttonColor = shapeObject.get('fill');
+        this.borderColor = shapeObject.get('stroke');
+      }
+    } else {
+      this.textColor = 'black';
+      this.fontSize.setValue(16);
+      this.buttonColor = '#00FF00';
+      this.borderColor = '#0000FF';
     }
 
     window.addEventListener('keyup', (event) => {
@@ -74,15 +84,21 @@ export class ConfigurationComponent {
 
   confirm(): void {
     const target = this.data?.target;
+    const result = {
+      letterInput: this.key,
+      textColor: this.textColor,
+      buttonColor: this.buttonColor,
+      borderColor: this.borderColor,
+      fontSize: this.fontSize.value,
+      edgeCount: this.edgeCount.value,
+    };
 
     if (target) {
-      // Find the text object in the group
       const textObject = target
         .getObjects()
         .find((obj: fabric.Object) => obj.type === 'text');
 
       if (textObject instanceof fabric.Text) {
-        // Update the text content
         textObject.set({ text: this.key });
         textObject.set({ fill: this.textColor });
         textObject.set({ fontSize: this.fontSize.value });
@@ -94,10 +110,10 @@ export class ConfigurationComponent {
       if (shapeObject) {
         shapeObject.set({ stroke: this.borderColor, fill: this.buttonColor });
       }
+      this.data.canvas.requestRenderAll();
     }
 
-    this.data.canvas.requestRenderAll();
-    this.dialogRef.close();
+    this.dialogRef.close(result);
   }
 
   cancel(): void {
@@ -105,6 +121,13 @@ export class ConfigurationComponent {
   }
 
   validatePositiveNumber() {
+    const inputValue = this.fontSize.value;
+    if (isNaN(inputValue) || inputValue <= 0) {
+      this.fontSize.setValue(16);
+    }
+  }
+
+  validatePolygon() {
     const inputValue = this.fontSize.value;
     if (isNaN(inputValue) || inputValue <= 0) {
       this.fontSize.setValue(16);
