@@ -3,6 +3,12 @@
   <mat-form-field appearance="outline">
     <input (keyup)="validate()" [formControl]="letter" matInput placeholder="Choose a letter">
   </mat-form-field>
+  <mat-form-field appearance="outline">
+    <input (keyup)="validatePositiveNumber()" [formControl]="fontSize" matInput placeholder="Enter a positive number" type="number">
+  </mat-form-field>
+  <input [(colorPicker)]="buttonColor" [style.background]="buttonColor"/>
+  <input [(colorPicker)]="borderColor" [style.background]="borderColor"/>
+  <input [(colorPicker)]="textColor" [style.background]="textColor"/>
 </div>
 <div mat-dialog-actions>
   <button (click)="confirm()" color="primary" mat-flat-button>Confirm</button>
