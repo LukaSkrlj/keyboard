@@ -105,7 +105,10 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
                 'AltGraph',
               ].includes(letter)
             ) {
-              const cursorPosition = this.getCursorPosition(this.textArea, options.e);
+              const cursorPosition = this.getCursorPosition(
+                this.textArea,
+                options.e,
+              );
               const currentText = this.textArea.value;
               const newTextValue =
                 currentText.substring(0, cursorPosition.start) +
@@ -124,7 +127,6 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
             if (letter === 'CapsLock' || letter === 'Shift') {
               this.isShift = !this.isShift;
             }
-
 
             // Insert the new text at the specified cursor position
             this.textArea.focus();
@@ -148,10 +150,13 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
   }
 
   getCursorPosition(textarea: HTMLTextAreaElement, event: MouseEvent) {
-    const {selectionStart, selectionEnd} = textarea;
+    const { selectionStart, selectionEnd } = textarea;
 
-    if (typeof selectionStart === 'number' && typeof selectionEnd === 'number') {
-      return {start: selectionStart, end: selectionEnd};
+    if (
+      typeof selectionStart === 'number' &&
+      typeof selectionEnd === 'number'
+    ) {
+      return { start: selectionStart, end: selectionEnd };
     } else {
       const selection = window.getSelection();
 
@@ -163,10 +168,10 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
         const start = preSelectionRange.toString().length;
         const end = start + range.toString().length;
 
-        return {start, end};
+        return { start, end };
       } else {
         // Default to start of the textarea
-        return {start: 0, end: 0};
+        return { start: 0, end: 0 };
       }
     }
   }
@@ -223,29 +228,61 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(ConfigurationComponent, {
       data: {
         isPolygon: shape === 'polygon',
-      }
+      },
     });
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        const {letterInput, textColor, buttonColor, borderColor, fontSize, edgeCount} = result;
+        const {
+          letterInput,
+          textColor,
+          buttonColor,
+          borderColor,
+          fontSize,
+          edgeCount,
+        } = result;
         const letter = letterInput.trim().charAt(0);
 
         switch (shape) {
           case 'rect':
-            this._fabricService.AddRectKey(letter, textColor, buttonColor, borderColor, fontSize);
+            this._fabricService.AddRectKey(
+              letter,
+              textColor,
+              buttonColor,
+              borderColor,
+              fontSize,
+            );
             break;
           case 'triangle':
-            this._fabricService.AddTriangleKey(letter, textColor, buttonColor, borderColor, fontSize);
+            this._fabricService.AddTriangleKey(
+              letter,
+              textColor,
+              buttonColor,
+              borderColor,
+              fontSize,
+            );
             break;
           case 'oval':
-            this._fabricService.AddOvalKey(letter, textColor, buttonColor, borderColor, fontSize);
+            this._fabricService.AddOvalKey(
+              letter,
+              textColor,
+              buttonColor,
+              borderColor,
+              fontSize,
+            );
             break;
           case 'polygon':
             if (edgeCount) {
               const edges = parseInt(edgeCount, 10);
 
               if (!isNaN(edges) && edges >= 3) {
-                this._fabricService.AddPolygonKey(letter, edges, textColor, buttonColor, borderColor, fontSize);
+                this._fabricService.AddPolygonKey(
+                  letter,
+                  edges,
+                  textColor,
+                  buttonColor,
+                  borderColor,
+                  fontSize,
+                );
               } else {
                 alert(
                   'Invalid input. Please enter a valid number of edges (minimum 3).',
@@ -257,7 +294,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
             console.error(`Invalid shape: ${shape}`);
         }
       }
-    })
+    });
   }
 
   load() {
