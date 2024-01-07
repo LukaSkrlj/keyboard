@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 
 import { fabric } from 'fabric';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfigurationComponent } from './components/configuration/configuration.component';
 import { Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -22,6 +21,7 @@ export class FabricService {
   cloneImg = document.createElement('img');
   configurationImg = document.createElement('img');
   keyEvent = new Subject<string>();
+  openConfiguration$ = new Subject();
   protected _clipboard: any;
   protected _points: Array<fabric.Circle>;
   protected _polylines: Record<string, fabric.Polyline>;
@@ -66,8 +66,7 @@ export class FabricService {
       offsetY: -16,
       offsetX: 72,
       cursorStyle: 'pointer',
-      mouseUpHandler: (eventData, target) =>
-        this.openConfiguration(eventData, target),
+      mouseUpHandler: this.openConfiguration.bind(this),
       render: this.renderIcon(this.configurationImg),
       sizeX: 24,
       sizeY: 24,
@@ -133,10 +132,6 @@ export class FabricService {
       perPixelTargetFind: true,
     });
 
-    rect.on('mouseup', () => {
-      this.keyEvent.next(letter);
-    });
-
     const text = new fabric.Text(letter, {
       left: rect.left + rect.width / 2,
       top: rect.top + rect.height / 2,
@@ -144,6 +139,10 @@ export class FabricService {
       fill: 'black',
       originX: 'center',
       originY: 'center',
+    });
+
+    rect.on('mouseup', () => {
+      this.keyEvent.next(letter.toLocaleLowerCase());
     });
 
     const group = new fabric.Group([rect, text], {});
@@ -166,7 +165,7 @@ export class FabricService {
     });
 
     triangle.on('mouseup', () => {
-      this.keyEvent.next(letter);
+      this.keyEvent.next(letter.toLocaleLowerCase());
     });
 
     const text = new fabric.Text(letter, {
@@ -198,7 +197,7 @@ export class FabricService {
     });
 
     oval.on('mouseup', () => {
-      this.keyEvent.next(letter);
+      this.keyEvent.next(letter.toLocaleLowerCase());
     });
 
     const text = new fabric.Text(letter, {
@@ -231,7 +230,7 @@ export class FabricService {
     );
 
     customShape.on('mouseup', () => {
-      this.keyEvent.next(letter);
+      this.keyEvent.next(letter.toLocaleLowerCase());
     });
 
     const text = new fabric.Text(letter, {
@@ -283,14 +282,7 @@ export class FabricService {
     const target = transform?.target;
     const canvas = target.canvas;
     if (target) {
-      this.dialog.open(ConfigurationComponent, {
-        height: '300px',
-        width: '300px',
-        data: {
-          target: target,
-          canvas: canvas,
-        },
-      });
+      this.openConfiguration$.next({ target, canvas });
     }
     return true;
   }

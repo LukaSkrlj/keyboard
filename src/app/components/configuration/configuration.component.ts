@@ -1,4 +1,4 @@
-import { Component, Inject, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,7 +12,7 @@ import {
 } from '@angular/material/dialog';
 import { fabric } from 'fabric';
 import { MatButtonModule } from '@angular/material/button';
-import { ColorPickerModule, ColorPickerService  } from 'ngx-color-picker';
+import { ColorPickerModule, ColorPickerService } from 'ngx-color-picker';
 
 @Component({
   selector: 'app-configuration',
@@ -27,13 +27,10 @@ import { ColorPickerModule, ColorPickerService  } from 'ngx-color-picker';
     MatDialogActions,
     ColorPickerModule,
   ],
-  providers: [
-    ColorPickerService
-  ],
+  providers: [ColorPickerService],
   templateUrl: './configuration.component.html',
-  styleUrls: ['./configuration.component.css'],  // Change from styleUrl to styleUrls
+  styleUrls: ['./configuration.component.css'], // Change from styleUrl to styleUrls
   standalone: true,
-  encapsulation: ViewEncapsulation.None,
 })
 export class ConfigurationComponent {
   letter: FormControl;
@@ -45,8 +42,8 @@ export class ConfigurationComponent {
   constructor(
     public dialogRef: MatDialogRef<ConfigurationComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private cdr: ChangeDetectorRef,
   ) {
-    console.log('whatt');
     this.letter = new FormControl('');
     this.fontSize = new FormControl(0);
     // Set the initial letter based on the existing text content
@@ -56,19 +53,19 @@ export class ConfigurationComponent {
       .find((obj: fabric.Object) => obj.type === 'text');
     if (textObject instanceof fabric.Text) {
       this.letter.setValue(textObject.text || '');
-      this.fontSize.setValue(textObject.get('fontSize') || 16)
-      if(typeof(textObject.get('fill')) === 'string') {
+      this.fontSize.setValue(textObject.get('fontSize') || 16);
+      if (typeof textObject.get('fill') === 'string') {
         this.textColor = textObject.get('fill').toString();
       } else {
-        this.textColor = 'black'
+        this.textColor = 'black';
       }
     }
     const shapeObject = target
       .getObjects()
       .find((obj: fabric.Object) => obj.type !== 'text');
     if (shapeObject) {
-      this.buttonColor = shapeObject.get('fill')
-      this.borderColor = shapeObject.get('stroke')
+      this.buttonColor = shapeObject.get('fill');
+      this.borderColor = shapeObject.get('stroke');
     }
   }
 
@@ -101,7 +98,7 @@ export class ConfigurationComponent {
         .getObjects()
         .find((obj: fabric.Object) => obj.type != 'text');
       if (shapeObject) {
-        shapeObject.set( { stroke: this.borderColor, fill: this.buttonColor});
+        shapeObject.set({ stroke: this.borderColor, fill: this.buttonColor });
       }
     }
 

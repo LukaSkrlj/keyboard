@@ -1,13 +1,19 @@
 <h1 mat-dialog-title>Configuration</h1>
-<div mat-dialog-content>
+<div class="content" mat-dialog-content>
   <mat-form-field appearance="outline">
+    <mat-label>Key</mat-label>
     <input (keyup)="validate()" [formControl]="letter" matInput placeholder="Choose a letter">
   </mat-form-field>
   <mat-form-field appearance="outline">
-    <input (keyup)="validatePositiveNumber()" [formControl]="fontSize" matInput placeholder="Enter a positive number" type="number">
+    <mat-label>Font size</mat-label>
+    <input (keyup)="validatePositiveNumber()" [formControl]="fontSize" matInput placeholder="Enter a positive number"
+           type="number">
   </mat-form-field>
+  <mat-label>Field color</mat-label>
   <input [(colorPicker)]="buttonColor" [style.background]="buttonColor"/>
+  <mat-label>Border color</mat-label>
   <input [(colorPicker)]="borderColor" [style.background]="borderColor"/>
+  <mat-label>Text color</mat-label>
   <input [(colorPicker)]="textColor" [style.background]="textColor"/>
 </div>
 <div mat-dialog-actions>

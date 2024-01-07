@@ -92,7 +92,9 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
         obj.perPixelTargetFind = true;
         obj.on('mousedown', (options) => {
           if (this.textArea) {
-            this.textArea.value += obj.toObject().objects[1].text;
+            this.textArea.value += obj
+              .toObject()
+              .objects[1].text.toLocaleLowerCase();
             this.textArea.dispatchEvent(
               new KeyboardEvent('keyup', {
                 bubbles: true,
@@ -114,12 +116,18 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     this.checkDrawingMode();
   }
 
-  public ngOnInit(): void {}
+  public ngOnInit(): void {
+    this._fabricService.openConfiguration$.asObservable().subscribe((data) => {
+      this.dialog.open(ConfigurationComponent, {
+        height: '450px',
+        width: '300px',
+        data,
+      });
+    });
+  }
 
   ngAfterViewInit() {
-    this._zone.runOutsideAngular(() => {
-      this.initializeCanvas();
-    });
+    this.initializeCanvas();
     this.resizeObserver.observe(this.canvasWrapper.nativeElement);
   }
 
@@ -151,7 +159,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     const letterInput = prompt('Enter a letter to be inside the shape:');
 
     if (letterInput) {
-      const letter = letterInput.trim().charAt(0).toLocaleLowerCase();
+      const letter = letterInput.trim().charAt(0).toLocaleUpperCase();
 
       switch (shape) {
         case 'rect':

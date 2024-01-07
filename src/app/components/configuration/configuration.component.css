@@ -3,3 +3,13 @@
 mat-form-field {
   width: 100%;
 }
+
+.content {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+input {
+  width: 100%;
+}
