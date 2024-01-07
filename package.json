@@ -1,10 +1,11 @@
 {
   "name": "keyboard",
   "version": "0.0.0",
+  "requires": true,
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "node ./node_modules/@angular/cli/bin/ng build --base-href=/ --output-path=./dist/ --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -21,15 +22,29 @@
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
     "@types/fabric": "^5.3.6",
+    "assert": "^2.1.0",
+    "child_process": "^1.0.2",
     "fabric": "^5.3.0",
+    "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
+    "https": "^1.0.0",
     "jquery": "^3.7.1",
+    "net": "^1.0.2",
+    "ngx-build-plus": "^17.0.0",
     "ngx-color-picker": "^16.0.0",
+    "os": "^0.1.2",
+    "path": "^0.12.7",
     "prettier": "^3.1.1",
     "rxjs": "~7.8.0",
+    "stream": "^0.0.2",
+    "tls": "^0.0.1",
     "tslib": "^2.3.0",
+    "url": "^0.11.3",
+    "zlib": "^1.0.5",
     "zone.js": "~0.14.2"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "^17.0.0",
     "@angular-devkit/build-angular": "^17.0.8",
     "@angular/cli": "^17.0.8",
     "@angular/compiler-cli": "^17.0.0",
@@ -41,5 +56,19 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.2.2"
+  },
+  "browser": {
+    "crypto": false,
+    "fs": false,
+    "path": false,
+    "os": false,
+    "net": false,
+    "stream": false,
+    "tls": false,
+    "child_process": false,
+    "http": false,
+    "https": false,
+    "url": false,
+    "util": false
   }
 }

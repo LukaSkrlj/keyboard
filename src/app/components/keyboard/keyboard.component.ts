@@ -3,7 +3,6 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  NgZone,
   OnInit,
   Output,
   ViewChild,
@@ -21,6 +20,7 @@ import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-keyboard',
@@ -36,6 +36,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
     MatDialogModule,
     CommonModule,
     MatMenuModule,
+    MatTooltipModule,
   ],
   templateUrl: './keyboard.component.html',
   styleUrl: './keyboard.component.css',
@@ -53,6 +54,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
   downloadJsonHref: SafeUrl;
   isDraw: boolean = true;
   currentKeyboard: string;
+  isShift: boolean = false;
   private resizeObserver = new ResizeObserver(
     this.throttle((event) => {
       this.canvas.setWidth(event[0].contentRect.width);
@@ -63,7 +65,6 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
   constructor(
     private dialog: MatDialog,
     protected _fabricService: FabricService,
-    protected _zone: NgZone,
     private sanitizer: DomSanitizer,
   ) {}
 
@@ -92,29 +93,52 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
         obj.perPixelTargetFind = true;
         obj.on('mousedown', (options) => {
           if (this.textArea) {
-            const cursorPosition = this.getCursorPosition(this.textArea, options.e);
-            const newText = obj.toObject().objects[1].text.toLocaleLowerCase();
+            const letter = obj.toObject().objects[1].text;
+            if (
+              ![
+                'Enter',
+                'Shift',
+                'Control',
+                'Tab',
+                'CapsLock',
+                'Alt',
+                'AltGraph',
+              ].includes(letter)
+            ) {
+              const cursorPosition = this.getCursorPosition(
+                this.textArea,
+                options.e,
+              );
+              const currentText = this.textArea.value;
+              const newTextValue =
+                currentText.substring(0, cursorPosition.start) +
+                letter +
+                currentText.substring(cursorPosition.end);
+
+              this.textArea.value = newTextValue;
+
+              // Move the cursor to the end of the inserted text
+              const newCursorPosition = cursorPosition.start + letter.length;
+              this.setCursorPosition(this.textArea, newCursorPosition);
+            }
+            if (letter === 'Enter') {
+              this.textArea.value += '\r\n';
+            }
+            if (letter === 'CapsLock' || letter === 'Shift') {
+              this.isShift = !this.isShift;
+            }
 
             // Insert the new text at the specified cursor position
-            const currentText = this.textArea.value;
-            const newTextValue =
-              currentText.substring(0, cursorPosition.start) +
-              newText +
-              currentText.substring(cursorPosition.end);
+            this.textArea.focus();
+            options.e.preventDefault();
+            options.e.stopPropagation();
 
-            this.textArea.value = newTextValue;
-
-            // Move the cursor to the end of the inserted text
-            const newCursorPosition = cursorPosition.start + newText.length;
-            this.setCursorPosition(this.textArea, newCursorPosition);
-
-            // Trigger a keyup event
             this.textArea.dispatchEvent(
               new KeyboardEvent('keyup', {
+                shiftKey: this.isShift,
                 bubbles: true,
                 cancelable: true,
-                shiftKey: false,
-                key: newText,
+                key: letter,
               }),
             );
           }
@@ -126,10 +150,13 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
   }
 
   getCursorPosition(textarea: HTMLTextAreaElement, event: MouseEvent) {
-    const {selectionStart, selectionEnd} = textarea;
+    const { selectionStart, selectionEnd } = textarea;
 
-    if (typeof selectionStart === 'number' && typeof selectionEnd === 'number') {
-      return {start: selectionStart, end: selectionEnd};
+    if (
+      typeof selectionStart === 'number' &&
+      typeof selectionEnd === 'number'
+    ) {
+      return { start: selectionStart, end: selectionEnd };
     } else {
       const selection = window.getSelection();
 
@@ -141,10 +168,10 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
         const start = preSelectionRange.toString().length;
         const end = start + range.toString().length;
 
-        return {start, end};
+        return { start, end };
       } else {
         // Default to start of the textarea
-        return {start: 0, end: 0};
+        return { start: 0, end: 0 };
       }
     }
   }
@@ -201,29 +228,61 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(ConfigurationComponent, {
       data: {
         isPolygon: shape === 'polygon',
-      }
+      },
     });
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        const {letterInput, textColor, buttonColor, borderColor, fontSize, edgeCount} = result;
-        const letter = letterInput.trim().charAt(0).toLocaleUpperCase();
+        const {
+          letterInput,
+          textColor,
+          buttonColor,
+          borderColor,
+          fontSize,
+          edgeCount,
+        } = result;
+        const letter = letterInput.trim().charAt(0);
 
         switch (shape) {
           case 'rect':
-            this._fabricService.AddRectKey(letter, textColor, buttonColor, borderColor, fontSize);
+            this._fabricService.AddRectKey(
+              letter,
+              textColor,
+              buttonColor,
+              borderColor,
+              fontSize,
+            );
             break;
           case 'triangle':
-            this._fabricService.AddTriangleKey(letter, textColor, buttonColor, borderColor, fontSize);
+            this._fabricService.AddTriangleKey(
+              letter,
+              textColor,
+              buttonColor,
+              borderColor,
+              fontSize,
+            );
             break;
           case 'oval':
-            this._fabricService.AddOvalKey(letter, textColor, buttonColor, borderColor, fontSize);
+            this._fabricService.AddOvalKey(
+              letter,
+              textColor,
+              buttonColor,
+              borderColor,
+              fontSize,
+            );
             break;
           case 'polygon':
             if (edgeCount) {
               const edges = parseInt(edgeCount, 10);
 
               if (!isNaN(edges) && edges >= 3) {
-                this._fabricService.AddPolygonKey(letter, edges, textColor, buttonColor, borderColor, fontSize);
+                this._fabricService.AddPolygonKey(
+                  letter,
+                  edges,
+                  textColor,
+                  buttonColor,
+                  borderColor,
+                  fontSize,
+                );
               } else {
                 alert(
                   'Invalid input. Please enter a valid number of edges (minimum 3).',
@@ -235,7 +294,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
             console.error(`Invalid shape: ${shape}`);
         }
       }
-    })
+    });
   }
 
   load() {

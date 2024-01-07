@@ -142,7 +142,7 @@ export class FabricService {
     });
 
     rect.on('mouseup', () => {
-      this.keyEvent.next(letter.toLocaleLowerCase());
+      this.keyEvent.next(letter);
     });
 
     const group = new fabric.Group([rect, text], {});
@@ -165,7 +165,7 @@ export class FabricService {
     });
 
     triangle.on('mouseup', () => {
-      this.keyEvent.next(letter.toLocaleLowerCase());
+      this.keyEvent.next(letter);
     });
 
     const text = new fabric.Text(letter, {
@@ -197,7 +197,7 @@ export class FabricService {
     });
 
     oval.on('mouseup', () => {
-      this.keyEvent.next(letter.toLocaleLowerCase());
+      this.keyEvent.next(letter);
     });
 
     const text = new fabric.Text(letter, {
@@ -230,7 +230,7 @@ export class FabricService {
     );
 
     customShape.on('mouseup', () => {
-      this.keyEvent.next(letter.toLocaleLowerCase());
+      this.keyEvent.next(letter);
     });
 
     const text = new fabric.Text(letter, {

@@ -1,9 +1,6 @@
 <h1 mat-dialog-title>Configuration</h1>
 <div class="content" mat-dialog-content>
-  <mat-form-field appearance="outline">
-    <mat-label>Key</mat-label>
-    <input (keyup)="validate()" [formControl]="letter" matInput placeholder="Choose a letter">
-  </mat-form-field>
+  <h3>Key: <b>{{ key }}</b></h3>
   <mat-form-field appearance="outline">
     <mat-label>Font size</mat-label>
     <input (keyup)="validatePositiveNumber()" [formControl]="fontSize" matInput placeholder="Enter a positive number"

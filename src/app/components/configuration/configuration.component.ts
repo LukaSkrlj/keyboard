@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Inject } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -33,20 +33,19 @@ import { ColorPickerModule, ColorPickerService } from 'ngx-color-picker';
   standalone: true,
 })
 export class ConfigurationComponent {
-  letter: FormControl;
   fontSize: FormControl;
   edgeCount: FormControl;
   buttonColor: string;
   borderColor: string;
   textColor: string;
+  key: string;
+  keyCode: string;
   isPolygon= false;
 
   constructor(
     public dialogRef: MatDialogRef<ConfigurationComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private cdr: ChangeDetectorRef,
   ) {
-    this.letter = new FormControl('');
     this.fontSize = new FormControl(0);
     this.edgeCount = new FormControl(3);
     this.isPolygon = this.data?.isPolygon || false;
@@ -56,7 +55,6 @@ export class ConfigurationComponent {
         .getObjects()
         .find((obj: fabric.Object) => obj.type === 'text');
       if (textObject instanceof fabric.Text) {
-        this.letter.setValue(textObject.text || '');
         this.fontSize.setValue(textObject.get('fontSize') || 16);
         if (typeof textObject.get('fill') === 'string') {
           this.textColor = textObject.get('fill').toString();
@@ -77,21 +75,17 @@ export class ConfigurationComponent {
       this.buttonColor = '#00FF00';
       this.borderColor = '#0000FF';
     }
-  }
 
-  validate() {
-    this.letter.patchValue(
-      this.letter.value
-        .replace(/\W|\d/g, '')
-        .substring(this.letter.value.length - 1, this.letter.value.length)
-        .toLocaleLowerCase(),
-    );
+    window.addEventListener('keyup', (event) => {
+      this.key = event.key;
+      console.log(this.key);
+    });
   }
 
   confirm(): void {
     const target = this.data?.target;
     const result = {
-      letterInput: this.letter.value,
+      letterInput: this.key,
       textColor: this.textColor,
       buttonColor: this.buttonColor,
       borderColor: this.borderColor,
@@ -105,7 +99,7 @@ export class ConfigurationComponent {
         .find((obj: fabric.Object) => obj.type === 'text');
 
       if (textObject instanceof fabric.Text) {
-        textObject.set({ text: this.letter.value });
+        textObject.set({ text: this.key });
         textObject.set({ fill: this.textColor });
         textObject.set({ fontSize: this.fontSize.value });
       }
