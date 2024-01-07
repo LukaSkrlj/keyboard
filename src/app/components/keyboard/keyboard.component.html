@@ -16,36 +16,36 @@
     <canvas id="fabricSurface"></canvas>
   </div>
   <div *ngIf="isDraw" class="buttons">
-    <button (click)="onAddShape('rect')" color="primary" mat-mini-fab>
+    <button (click)="onAddShape('rect')" color="primary" mat-mini-fab matTooltip="Draw rectangle">
       <mat-icon>rectangle</mat-icon>
     </button>
-    <button (click)="onAddShape('triangle')" color="primary" mat-mini-fab>
+    <button (click)="onAddShape('triangle')" color="primary" mat-mini-fab matTooltip="Draw triangle">
       <mat-icon>change_history</mat-icon>
     </button>
-    <button (click)="onAddShape('oval')" color="primary" mat-mini-fab>
+    <button (click)="onAddShape('oval')" color="primary" mat-mini-fab matTooltip="Draw circle">
       <mat-icon>
         circle
       </mat-icon>
     </button>
-    <button (click)="onAddShape('polygon')" color="primary" mat-mini-fab>
+    <button (click)="onAddShape('polygon')" color="primary" mat-mini-fab matTooltip="Draw polygon">
       <mat-icon>polyline</mat-icon>
     </button>
-    <button (click)="onSave()" color="primary" mat-mini-fab>
+    <button (click)="onSave()" color="primary" mat-mini-fab matTooltip="Save layout">
       <mat-icon>save</mat-icon>
     </button>
-    <button (click)="onDelete()" color="primary" mat-mini-fab>
+    <button (click)="onDelete()" color="primary" mat-mini-fab matTooltip="Delete layout">
       <mat-icon>delete</mat-icon>
     </button>
-    <button (click)="onDownload()" color="primary" mat-mini-fab>
+    <button (click)="onDownload()" color="primary" mat-mini-fab matTooltip="Download layout">
       <a [href]="downloadJsonHref" download="download.json">
         <mat-icon>download</mat-icon>
       </a>
     </button>
-    <button (click)="fileInput.click()" color="primary" mat-mini-fab>
+    <button (click)="fileInput.click()" color="primary" mat-mini-fab matTooltip="Upload layout">
       <mat-icon>upload</mat-icon>
     </button>
     <input #fileInput (change)="onFileSelected($event)" hidden id="file" type="file">
-    <button [matMenuTriggerFor]="menu" color="primary" mat-mini-fab>
+    <button [matMenuTriggerFor]="menu" color="primary" mat-mini-fab matTooltip="Select layout">
       <mat-icon>menu</mat-icon>
     </button>
   </div>

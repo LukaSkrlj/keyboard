@@ -6,7 +6,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { EditorComponent } from './components/editor/editor.component';
 import { KeyboardComponent } from './components/keyboard/keyboard.component';
 import { FabricService } from './fabric.service';
-import { CanvasRendererComponent } from './components/canvas-renderer/canvas-renderer.component';
 import { fabric } from 'fabric';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -25,14 +24,12 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatFormFieldModule,
     MatInputModule,
     MatDialogModule,
-    CanvasRendererComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
 export class AppComponent implements OnInit {
   title = 'keyboard';
-  textArea?: HTMLTextAreaElement;
   canvasData: fabric.Canvas;
   @ViewChild('frameElement') frameElement?: ElementRef;
 
@@ -44,14 +41,5 @@ export class AppComponent implements OnInit {
         this.canvasData = canvasData;
       },
     );
-  }
-
-  load() {
-    if (this.frameElement) {
-      this.textArea =
-        this.frameElement.nativeElement.contentWindow.document.getElementById(
-          'Transcribe',
-        );
-    }
   }
 }

@@ -3,7 +3,6 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  NgZone,
   OnInit,
   Output,
   ViewChild,
@@ -21,6 +20,7 @@ import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-keyboard',
@@ -36,6 +36,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
     MatDialogModule,
     CommonModule,
     MatMenuModule,
+    MatTooltipModule,
   ],
   templateUrl: './keyboard.component.html',
   styleUrl: './keyboard.component.css',
@@ -53,6 +54,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
   downloadJsonHref: SafeUrl;
   isDraw: boolean = true;
   currentKeyboard: string;
+  isShift: boolean = false;
   private resizeObserver = new ResizeObserver(
     this.throttle((event) => {
       this.canvas.setWidth(event[0].contentRect.width);
@@ -63,7 +65,6 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
   constructor(
     private dialog: MatDialog,
     protected _fabricService: FabricService,
-    protected _zone: NgZone,
     private sanitizer: DomSanitizer,
   ) {}
 
@@ -92,15 +93,38 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
         obj.perPixelTargetFind = true;
         obj.on('mousedown', (options) => {
           if (this.textArea) {
-            this.textArea.value += obj
-              .toObject()
-              .objects[1].text.toLocaleLowerCase();
+            const letter = obj.toObject().objects[1].text;
+            if (
+              ![
+                'Enter',
+                'Shift',
+                'Control',
+                'Tab',
+                'CapsLock',
+                'Alt',
+                'AltGraph',
+              ].includes(letter)
+            ) {
+              this.textArea.value += letter;
+            }
+            if (letter === 'Enter') {
+              this.textArea.value += '\r\n';
+            }
+            if (letter === 'CapsLock' || letter === 'Shift') {
+              this.isShift = !this.isShift;
+            }
+
+            this.textArea.focus();
+            options.e.preventDefault();
+            options.e.stopPropagation();
+
             this.textArea.dispatchEvent(
               new KeyboardEvent('keyup', {
+                shiftKey: this.isShift,
                 bubbles: true,
                 cancelable: true,
-                shiftKey: false,
                 key: obj.toObject().objects[1].text,
+                code: obj.toObject().objects[1].text,
               }),
             );
           }
@@ -159,7 +183,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     const letterInput = prompt('Enter a letter to be inside the shape:');
 
     if (letterInput) {
-      const letter = letterInput.trim().charAt(0).toLocaleUpperCase();
+      const letter = letterInput.trim().charAt(0);
 
       switch (shape) {
         case 'rect':
