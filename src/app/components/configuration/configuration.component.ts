@@ -77,7 +77,11 @@ export class ConfigurationComponent {
     }
 
     window.addEventListener('keyup', (event) => {
-      this.key = event.key;
+      if (event.key === ' ') {
+        this.key = 'Space'
+      } else {
+        this.key = event.key;
+      }
       console.log(this.key);
     });
   }

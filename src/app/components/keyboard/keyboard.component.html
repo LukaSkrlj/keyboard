@@ -44,6 +44,22 @@
     <button (click)="fileInput.click()" color="primary" mat-mini-fab matTooltip="Upload layout">
       <mat-icon>upload</mat-icon>
     </button>
+    <button (click)="fileDigramInput.click()" color="primary" mat-mini-fab matTooltip="Load Digram File">
+      <mat-icon>file_upload</mat-icon>
+    </button>
+    <div class="coefficient-inputs">
+      <label for="coefficientA">Coefficient A:</label>
+      <input type="number" id="coefficientA" [(ngModel)]="coefficientA" (input)="onInputParametersChange(this.canvas.getObjects())">
+
+      <label for="coefficientB">Coefficient B:</label>
+      <input type="number" id="coefficientB" [(ngModel)]="coefficientB" (input)="onInputParametersChange(this.canvas.getObjects())">
+    </div>
+
+    <input #fileDigramInput (change)="onDigramFileSelected($event)" hidden id="fileDigram" type="file">
+    <div class="max-wpm-display">
+      <span>Max Predicted WPM:</span>
+      <span>{{ maxPredictedWPM.toFixed(2) }}</span>
+    </div>
     <input #fileInput (change)="onFileSelected($event)" hidden id="file" type="file">
     <button [matMenuTriggerFor]="menu" color="primary" mat-mini-fab matTooltip="Select layout">
       <mat-icon>menu</mat-icon>
