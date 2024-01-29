@@ -1,19 +1,27 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {fabric} from 'fabric';
-import {FabricService} from '../../fabric.service';
-import {MatButtonModule} from '@angular/material/button';
-import {ConfigurationComponent} from '../configuration/configuration.component';
-import {MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {CdkDrag, CdkDragHandle} from '@angular/cdk/drag-drop';
-import {MatIconModule} from '@angular/material/icon';
-import {MatDialog, MatDialogModule} from '@angular/material/dialog';
-import {CommonModule} from '@angular/common';
-import {MatMenuModule} from '@angular/material/menu';
-import {SaveDialogComponent} from '../save-dialog/save-dialog.component';
-import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import {FormsModule} from "@angular/forms";
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
+import { fabric } from 'fabric';
+import { FabricService } from '../../fabric.service';
+import { MatButtonModule } from '@angular/material/button';
+import { ConfigurationComponent } from '../configuration/configuration.component';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatMenuModule } from '@angular/material/menu';
+import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-keyboard',
@@ -50,7 +58,12 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
   isDraw: boolean = true;
   currentKeyboard: string;
   isShift: boolean = false;
-
+  // CALCULATING PREDICTED WPM MAX
+  CPSmax: number;
+  digramFrequencies: Map<string, number> = new Map();
+  coefficientA: number = 113.53;
+  coefficientB: number = 147.43;
+  maxPredictedWPM: number = 0.0;
   private allFabricEvents = [
     'after:render',
     'before:render',
@@ -75,26 +88,18 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     'selection:cleared',
     'selection:created',
   ];
-
-  // CALCULATING PREDICTED WPM MAX
-  CPSmax: number;
-  digramFrequencies: Map<string, number> = new Map();
-  coefficientA: number;
-  coefficientB: number;
-  maxPredictedWPM: number = 0.0;
-
-  constructor(
-    private dialog: MatDialog,
-    protected _fabricService: FabricService,
-    private sanitizer: DomSanitizer,
-  ) {}
-
   private resizeObserver = new ResizeObserver(
     this.throttle((event) => {
       this.canvas.setWidth(event[0].contentRect.width);
       this.canvas.setHeight(event[0].contentRect.height);
     }, 10),
   );
+
+  constructor(
+    private dialog: MatDialog,
+    protected _fabricService: FabricService,
+    private sanitizer: DomSanitizer,
+  ) {}
 
   throttle(f, delay) {
     let timer = 0;
@@ -140,17 +145,20 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
               );
               const currentText = this.textArea.value;
               if (letter === 'Backspace') {
-                this.textArea.value = currentText.substring(0, cursorPosition.start - 1) +
+                this.textArea.value =
+                  currentText.substring(0, cursorPosition.start - 1) +
                   currentText.substring(cursorPosition.end);
                 const newCursorPosition = cursorPosition.start - 1;
                 this.setCursorPosition(this.textArea, newCursorPosition);
               } else if (letter === 'Delete') {
-                this.textArea.value = currentText.substring(0, cursorPosition.start) +
+                this.textArea.value =
+                  currentText.substring(0, cursorPosition.start) +
                   currentText.substring(cursorPosition.end + 1);
                 const newCursorPosition = cursorPosition.start;
                 this.setCursorPosition(this.textArea, newCursorPosition);
               } else {
-                this.textArea.value = currentText.substring(0, cursorPosition.start) +
+                this.textArea.value =
+                  currentText.substring(0, cursorPosition.start) +
                   letter +
                   currentText.substring(cursorPosition.end);
                 const newCursorPosition = cursorPosition.start + letter.length;
@@ -188,7 +196,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     this.canvas.renderAll();
   }
 
-  getCursorPosition(textarea: HTMLTextAreaElement, event: MouseEvent) {
+  getCursorPosition(textarea: HTMLTextAreaElement, _: MouseEvent) {
     const { selectionStart, selectionEnd } = textarea;
 
     if (
@@ -247,8 +255,8 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
       height: 500,
     });
 
-    this.allFabricEvents.forEach(eventName => {
-      this.canvas.on(eventName, (options) => {
+    this.allFabricEvents.forEach((eventName) => {
+      this.canvas.on(eventName, () => {
         const keys = this.canvas.getObjects();
         this.onInputParametersChange(keys);
       });
@@ -265,6 +273,8 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
 
       read.onloadend = () => {
         localStorage.setItem(file.name, read.result.toString());
+        this.keyboards = Object.keys(localStorage);
+        this.onKeyboardSelect(file.name);
       };
     }
   }
@@ -417,25 +427,54 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
       // possible that digram is double space so wont split sections correctly
       // decimal point is , -> .
       if (digram === '  ') {
-        const frequency = parseFloat(line.trim().split(/\s+/)[1].replace(',', '.').replace('%', '')) / 100;
+        const frequency =
+          parseFloat(
+            line.trim().split(/\s+/)[1].replace(',', '.').replace('%', ''),
+          ) / 100;
         this.digramFrequencies.set(digram, frequency);
       } else {
-        const frequency = parseFloat(line.trim().split(/\s+/)[2].replace(',', '.').replace('%', '')) / 100;
+        const frequency =
+          parseFloat(
+            line.trim().split(/\s+/)[2].replace(',', '.').replace('%', ''),
+          ) / 100;
         this.digramFrequencies.set(digram, frequency);
       }
     }
   }
 
-  calculateCPS(keys: fabric.Object[], digramFrequencies: Map<string, number>): number {
+  calculateCPS(
+    keys: fabric.Object[],
+    digramFrequencies: Map<string, number>,
+  ): number {
     let CT = 0;
-    const centerPoints: fabric.Point[] = keys.map((key) => key.getCenterPoint());
+    const centerPoints: fabric.Point[] = keys.map((key) =>
+      key.getCenterPoint(),
+    );
     // Testirati sve parove abecede + space
     for (let i = 0; i < centerPoints.length; i++) {
       for (let j = 0; j < centerPoints.length; j++) {
         let letterI = keys[i].toObject().objects[1].text.toLowerCase();
         let letterJ = keys[j].toObject().objects[1].text.toLowerCase();
-        if (['Enter', 'Shift', 'Control', 'Tab', 'CapsLock', 'Alt', 'AltGraph'].includes(letterI) ||
-          ['Enter', 'Shift', 'Control', 'Tab', 'CapsLock', 'Alt', 'AltGraph'].includes(letterJ)) {
+        if (
+          [
+            'Enter',
+            'Shift',
+            'Control',
+            'Tab',
+            'CapsLock',
+            'Alt',
+            'AltGraph',
+          ].includes(letterI) ||
+          [
+            'Enter',
+            'Shift',
+            'Control',
+            'Tab',
+            'CapsLock',
+            'Alt',
+            'AltGraph',
+          ].includes(letterJ)
+        ) {
           break;
         }
         if (letterI === 'space') {
@@ -447,20 +486,21 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
         const digram = letterI + letterJ;
         const Pij = digramFrequencies.get(digram);
         if (!Pij) {
-          console.log("ERROR: DIGRAM NOT FOUND " + digram)
+          console.log('ERROR: DIGRAM NOT FOUND ' + digram);
+          return NaN;
         }
         const Aij = centerPoints[i].distanceFrom(centerPoints[j]);
         const Wj = keys[j].getScaledWidth();
-        const MTij = (this.coefficientA + this.coefficientB) * Math.log2((Aij / Wj) + 1);
+        const MTij =
+          (this.coefficientA + this.coefficientB) * Math.log2(Aij / Wj + 1);
         CT += MTij * Pij;
       }
     }
-    const CPS = 1 / CT;
-    return CPS
+    return 1 / CT;
   }
 
   calculateMaxPredictedWPM(): number {
-    return (this.CPSmax / 5 ) * 60;
+    return (this.CPSmax / 5) * 60;
   }
 
   updateMaxPredictedWPM(keys: fabric.Object[]) {
