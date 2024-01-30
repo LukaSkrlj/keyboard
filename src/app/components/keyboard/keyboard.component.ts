@@ -21,6 +21,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-keyboard',
@@ -37,24 +38,56 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     CommonModule,
     MatMenuModule,
     MatTooltipModule,
+    FormsModule,
   ],
   templateUrl: './keyboard.component.html',
   styleUrl: './keyboard.component.css',
 })
 export class KeyboardComponent implements OnInit, AfterViewInit {
-  keyboards: string[] = Object.keys(localStorage);
+  @ViewChild('frameElement') frameElement?: ElementRef;
+  @ViewChild('canvasWrapper') canvasWrapper: ElementRef;
+
   @Output() keyPress = new EventEmitter<string>();
   @Output() toggleDraw: EventEmitter<fabric.Canvas | null> =
     new EventEmitter<fabric.Canvas | null>();
 
+  keyboards: string[] = Object.keys(localStorage);
   textArea?: HTMLTextAreaElement;
-  @ViewChild('frameElement') frameElement?: ElementRef;
-  @ViewChild('canvasWrapper') canvasWrapper: ElementRef;
   public canvas: fabric.Canvas = new fabric.Canvas('fabricSurface');
   downloadJsonHref: SafeUrl;
   isDraw: boolean = true;
   currentKeyboard: string;
   isShift: boolean = false;
+  // CALCULATING PREDICTED WPM MAX
+  CPSmax: number;
+  digramFrequencies: Map<string, number> = new Map();
+  coefficientA: number = 0.11353;
+  coefficientB: number = 0.14743;
+  maxPredictedWPM: number = 0.0;
+  private allFabricEvents = [
+    'after:render',
+    'before:render',
+    'canvas:cleared',
+    'mouse:over',
+    'mouse:out',
+    'mouse:down',
+    'mouse:up',
+    'mouse:move',
+    'mouse:wheel',
+    'object:added',
+    'object:modified',
+    'object:moving',
+    'object:over',
+    'object:out',
+    'object:removed',
+    'object:rotating',
+    'object:scaling',
+    'object:selected',
+    'path:created',
+    'before:selection:cleared',
+    'selection:cleared',
+    'selection:created',
+  ];
   private resizeObserver = new ResizeObserver(
     this.throttle((event) => {
       this.canvas.setWidth(event[0].contentRect.width);
@@ -97,6 +130,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
             if (
               ![
                 'Enter',
+                'Space',
                 'Shift',
                 'Control',
                 'Tab',
@@ -110,19 +144,32 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
                 options.e,
               );
               const currentText = this.textArea.value;
-              const newTextValue =
-                currentText.substring(0, cursorPosition.start) +
-                letter +
-                currentText.substring(cursorPosition.end);
-
-              this.textArea.value = newTextValue;
-
-              // Move the cursor to the end of the inserted text
-              const newCursorPosition = cursorPosition.start + letter.length;
-              this.setCursorPosition(this.textArea, newCursorPosition);
+              if (letter === 'Backspace') {
+                this.textArea.value =
+                  currentText.substring(0, cursorPosition.start - 1) +
+                  currentText.substring(cursorPosition.end);
+                const newCursorPosition = cursorPosition.start - 1;
+                this.setCursorPosition(this.textArea, newCursorPosition);
+              } else if (letter === 'Delete') {
+                this.textArea.value =
+                  currentText.substring(0, cursorPosition.start) +
+                  currentText.substring(cursorPosition.end + 1);
+                const newCursorPosition = cursorPosition.start;
+                this.setCursorPosition(this.textArea, newCursorPosition);
+              } else {
+                this.textArea.value =
+                  currentText.substring(0, cursorPosition.start) +
+                  letter +
+                  currentText.substring(cursorPosition.end);
+                const newCursorPosition = cursorPosition.start + letter.length;
+                this.setCursorPosition(this.textArea, newCursorPosition);
+              }
             }
             if (letter === 'Enter') {
               this.textArea.value += '\r\n';
+            }
+            if (letter === 'Space') {
+              this.textArea.value += ' ';
             }
             if (letter === 'CapsLock' || letter === 'Shift') {
               this.isShift = !this.isShift;
@@ -149,7 +196,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     this.canvas.renderAll();
   }
 
-  getCursorPosition(textarea: HTMLTextAreaElement, event: MouseEvent) {
+  getCursorPosition(textarea: HTMLTextAreaElement, _: MouseEvent) {
     const { selectionStart, selectionEnd } = textarea;
 
     if (
@@ -170,7 +217,6 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
 
         return { start, end };
       } else {
-        // Default to start of the textarea
         return { start: 0, end: 0 };
       }
     }
@@ -209,6 +255,13 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
       height: 500,
     });
 
+    this.allFabricEvents.forEach((eventName) => {
+      this.canvas.on(eventName, () => {
+        const keys = this.canvas.getObjects();
+        this.onInputParametersChange(keys);
+      });
+    });
+
     this._fabricService.canvas = this.canvas;
   }
 
@@ -220,6 +273,8 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
 
       read.onloadend = () => {
         localStorage.setItem(file.name, read.result.toString());
+        this.keyboards = Object.keys(localStorage);
+        this.onKeyboardSelect(file.name);
       };
     }
   }
@@ -240,12 +295,11 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
           fontSize,
           edgeCount,
         } = result;
-        const letter = letterInput.trim().charAt(0);
 
         switch (shape) {
           case 'rect':
             this._fabricService.AddRectKey(
-              letter,
+              letterInput,
               textColor,
               buttonColor,
               borderColor,
@@ -254,7 +308,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
             break;
           case 'triangle':
             this._fabricService.AddTriangleKey(
-              letter,
+              letterInput,
               textColor,
               buttonColor,
               borderColor,
@@ -263,7 +317,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
             break;
           case 'oval':
             this._fabricService.AddOvalKey(
-              letter,
+              letterInput,
               textColor,
               buttonColor,
               borderColor,
@@ -276,7 +330,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
 
               if (!isNaN(edges) && edges >= 3) {
                 this._fabricService.AddPolygonKey(
-                  letter,
+                  letterInput,
                   edges,
                   textColor,
                   buttonColor,
@@ -336,10 +390,121 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     );
   }
 
+  onDigramFileSelected(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const fileContent = e.target.result as string;
+      this.loadDigramFrequencies(fileContent);
+      const keys = this.canvas.getObjects(); // Assuming each fabric object represents a key
+      this.updateMaxPredictedWPM(keys);
+    };
+
+    reader.readAsText(file);
+  }
+
   onKeyboardSelect(keyboard: string) {
-    this.canvas.loadFromJSON(
-      localStorage.getItem(keyboard),
-      this.checkDrawingMode,
+    this.canvas.loadFromJSON(localStorage.getItem(keyboard), () => {
+      this.checkDrawingMode();
+      const keys = this.canvas.getObjects();
+      this.updateMaxPredictedWPM(keys); // Update max predicted WPM when loading a keyboard
+    });
+  }
+
+  onInputParametersChange(keys: fabric.Object[]) {
+    this.updateMaxPredictedWPM(keys);
+  }
+
+  loadDigramFrequencies(fileContent: string) {
+    const lines = fileContent.split('\n');
+    for (const line of lines) {
+      if (line.length < 1) {
+        return;
+      }
+      // first 2 chars are digrams
+      const digram = line.substring(0, 2);
+      // possible that digram is double space so wont split sections correctly
+      // decimal point is , -> .
+      if (digram === '  ') {
+        const frequency =
+          parseFloat(
+            line.trim().split(/\s+/)[1].replace(',', '.').replace('%', ''),
+          ) / 100;
+        this.digramFrequencies.set(digram, frequency);
+      } else {
+        const frequency =
+          parseFloat(
+            line.trim().split(/\s+/)[2].replace(',', '.').replace('%', ''),
+          ) / 100;
+        this.digramFrequencies.set(digram, frequency);
+      }
+    }
+  }
+
+  calculateCPS(
+    keys: fabric.Object[],
+    digramFrequencies: Map<string, number>,
+  ): number {
+    let CT = 0;
+    const centerPoints: fabric.Point[] = keys.map((key) =>
+      key.getCenterPoint(),
     );
+    // Testirati sve parove abecede + space
+    for (let i = 0; i < centerPoints.length; i++) {
+      for (let j = 0; j < centerPoints.length; j++) {
+        let letterI = keys[i].toObject().objects[1].text.toLowerCase();
+        let letterJ = keys[j].toObject().objects[1].text.toLowerCase();
+        if (
+          [
+            'Enter',
+            'Shift',
+            'Control',
+            'Tab',
+            'CapsLock',
+            'Alt',
+            'AltGraph',
+          ].includes(letterI) ||
+          [
+            'Enter',
+            'Shift',
+            'Control',
+            'Tab',
+            'CapsLock',
+            'Alt',
+            'AltGraph',
+          ].includes(letterJ)
+        ) {
+          break;
+        }
+        if (letterI === 'space') {
+          letterI = ' ';
+        }
+        if (letterJ === 'space') {
+          letterJ = ' ';
+        }
+        const digram = letterI + letterJ;
+        const Pij = digramFrequencies.get(digram);
+        if (Pij === undefined) {
+          console.log('ERROR: DIGRAM NOT FOUND ' + digram);
+          return NaN;
+        }
+        const Aij = centerPoints[i].distanceFrom(centerPoints[j]);
+        const Wj = keys[j].getScaledWidth();
+        const MTij =
+          (this.coefficientA + this.coefficientB) * Math.log2(Aij / Wj + 1);
+        CT += MTij * Pij;
+      }
+    }
+    return 1 / CT;
+  }
+
+  calculateMaxPredictedWPM(): number {
+    return (this.CPSmax / 5) * 60;
+  }
+
+  updateMaxPredictedWPM(keys: fabric.Object[]) {
+    this.CPSmax = this.calculateCPS(keys, this.digramFrequencies);
+    this.maxPredictedWPM = this.calculateMaxPredictedWPM();
   }
 }

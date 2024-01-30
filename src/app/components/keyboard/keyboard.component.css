@@ -11,7 +11,13 @@ canvas {
   left: 25%;
   box-sizing: border-box;
   z-index: 1;
-  background-color: transparent;
+  background-color: lightgray;
+}
+
+.data-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .canvas-wrapper {
@@ -29,7 +35,6 @@ canvas {
   display: flex;
   justify-content: space-evenly;
   padding: 10px;
-  background-color: lightgray;
 }
 
 .handle {
@@ -54,4 +59,20 @@ canvas {
 
 a {
   color: white;
+}
+
+.coefficient-inputs {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.max-wpm-display {
+  padding: 10px 20px;
+  font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+
+  :first-child {
+    font-weight: 600;
+  }
 }

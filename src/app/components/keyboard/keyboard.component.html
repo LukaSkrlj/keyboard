@@ -44,10 +44,34 @@
     <button (click)="fileInput.click()" color="primary" mat-mini-fab matTooltip="Upload layout">
       <mat-icon>upload</mat-icon>
     </button>
-    <input #fileInput (change)="onFileSelected($event)" hidden id="file" type="file">
+    <button (click)="fileDigramInput.click()" color="primary" mat-mini-fab matTooltip="Load Digram File">
+      <mat-icon>monitoring</mat-icon>
+    </button>
     <button [matMenuTriggerFor]="menu" color="primary" mat-mini-fab matTooltip="Select layout">
       <mat-icon>menu</mat-icon>
     </button>
+  </div>
+  <div class="data-container">
+    <div *ngIf="isDraw" class="coefficient-inputs">
+      <mat-form-field>
+        <mat-label>Coefficient A (s):</mat-label>
+        <input (input)="onInputParametersChange(this.canvas.getObjects())" [(ngModel)]="coefficientA" id="coefficientA"
+               matInput type="number">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Coefficient B (s/bit):</mat-label>
+        <input (input)="onInputParametersChange(this.canvas.getObjects())" [(ngModel)]="coefficientB" id="coefficientB"
+               matInput
+               type="number">
+      </mat-form-field>
+    </div>
+
+    <input #fileDigramInput (change)="onDigramFileSelected($event)" hidden id="fileDigram" type="file">
+    <div class="max-wpm-display">
+      <span>Max Predicted WPM: </span>
+      <span>{{ maxPredictedWPM.toFixed(2) }}</span>
+    </div>
+    <input #fileInput (change)="onFileSelected($event)" hidden id="file" type="file">
   </div>
 </div>
 
