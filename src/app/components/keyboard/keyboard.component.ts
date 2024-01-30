@@ -50,7 +50,33 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
   @Output() keyPress = new EventEmitter<string>();
   @Output() toggleDraw: EventEmitter<fabric.Canvas | null> =
     new EventEmitter<fabric.Canvas | null>();
-
+  specialChars = [
+    'Enter',
+    'Shift',
+    'Control',
+    'Tab',
+    'CapsLock',
+    'Alt',
+    'AltGraph',
+    'tab',
+    'shift',
+    'space',
+    'control',
+    'alt',
+    'altgraph',
+    'capsLock',
+    'capslock',
+    '[',
+    ']',
+    '\\',
+    ';',
+    "'",
+    ',',
+    '.',
+    '/',
+    'backspace',
+    'enter',
+  ];
   keyboards: string[] = Object.keys(localStorage);
   textArea?: HTMLTextAreaElement;
   public canvas: fabric.Canvas = new fabric.Canvas('fabricSurface');
@@ -127,18 +153,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
         obj.on('mousedown', (options) => {
           if (this.textArea) {
             const letter = obj.toObject().objects[1].text;
-            if (
-              ![
-                'Enter',
-                'Space',
-                'Shift',
-                'Control',
-                'Tab',
-                'CapsLock',
-                'Alt',
-                'AltGraph',
-              ].includes(letter)
-            ) {
+            if (!this.specialChars.includes(letter)) {
               const cursorPosition = this.getCursorPosition(
                 this.textArea,
                 options.e,
@@ -165,13 +180,19 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
                 this.setCursorPosition(this.textArea, newCursorPosition);
               }
             }
-            if (letter === 'Enter') {
+            if (letter === 'Enter' || letter === 'enter') {
               this.textArea.value += '\r\n';
             }
-            if (letter === 'Space') {
+            if (letter === 'Space' || letter === 'space') {
               this.textArea.value += ' ';
             }
-            if (letter === 'CapsLock' || letter === 'Shift') {
+            if (
+              letter === 'CapsLock' ||
+              letter === 'Shift' ||
+              letter === 'shift' ||
+              letter === 'capslock' ||
+              letter === 'capsLock'
+            ) {
               this.isShift = !this.isShift;
             }
 
@@ -456,24 +477,8 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
         let letterI = keys[i].toObject().objects[1].text.toLowerCase();
         let letterJ = keys[j].toObject().objects[1].text.toLowerCase();
         if (
-          [
-            'Enter',
-            'Shift',
-            'Control',
-            'Tab',
-            'CapsLock',
-            'Alt',
-            'AltGraph',
-          ].includes(letterI) ||
-          [
-            'Enter',
-            'Shift',
-            'Control',
-            'Tab',
-            'CapsLock',
-            'Alt',
-            'AltGraph',
-          ].includes(letterJ)
+          this.specialChars.includes(letterI) ||
+          this.specialChars.includes(letterJ)
         ) {
           break;
         }
