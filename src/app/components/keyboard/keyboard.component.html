@@ -67,7 +67,7 @@
     </div>
 
     <input #fileDigramInput (change)="onDigramFileSelected($event)" hidden id="fileDigram" type="file">
-    <div class="max-wpm-display">
+    <div *ngIf="isDraw" class="max-wpm-display">
       <span>Max Predicted WPM: </span>
       <span>{{ maxPredictedWPM.toFixed(2) }}</span>
     </div>
