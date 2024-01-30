@@ -58,14 +58,14 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     'CapsLock',
     'Alt',
     'AltGraph',
-    'tab',
-    'shift',
-    'space',
-    'control',
-    'alt',
-    'altgraph',
-    'capsLock',
-    'capslock',
+    'Tab',
+    'Shift',
+    'Space',
+    'Control',
+    'Alt',
+    'Altgraph',
+    'CapsLock',
+    'Capslock',
     '[',
     ']',
     '\\',
@@ -74,8 +74,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     ',',
     '.',
     '/',
-    'backspace',
-    'enter',
+    'Enter',
   ];
   keyboards: string[] = Object.keys(localStorage);
   textArea?: HTMLTextAreaElement;
@@ -94,12 +93,6 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     'after:render',
     'before:render',
     'canvas:cleared',
-    'mouse:over',
-    'mouse:out',
-    'mouse:down',
-    'mouse:up',
-    'mouse:move',
-    'mouse:wheel',
     'object:added',
     'object:modified',
     'object:moving',
@@ -109,7 +102,6 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
     'object:rotating',
     'object:scaling',
     'object:selected',
-    'path:created',
     'before:selection:cleared',
     'selection:cleared',
     'selection:created',
@@ -476,11 +468,8 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
       for (let j = 0; j < centerPoints.length; j++) {
         let letterI = keys[i].toObject().objects[1].text.toLowerCase();
         let letterJ = keys[j].toObject().objects[1].text.toLowerCase();
-        if (
-          this.specialChars.includes(letterI) ||
-          this.specialChars.includes(letterJ)
-        ) {
-          break;
+        if ((!(/^[a-zA-Z\s]+$/.test(letterI))) || (!(/^[a-zA-Z\s]+$/.test(letterJ)))) {
+          continue;
         }
         if (letterI === 'space') {
           letterI = ' ';
@@ -488,11 +477,14 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
         if (letterJ === 'space') {
           letterJ = ' ';
         }
+        if (letterJ.length > 1 || letterI.length > 1) {
+          continue;
+        }
         const digram = letterI + letterJ;
         const Pij = digramFrequencies.get(digram);
         if (Pij === undefined) {
           console.log('ERROR: DIGRAM NOT FOUND ' + digram);
-          return NaN;
+          continue;
         }
         const Aij = centerPoints[i].distanceFrom(centerPoints[j]);
         const Wj = keys[j].getScaledWidth();
@@ -509,7 +501,9 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
   }
 
   updateMaxPredictedWPM(keys: fabric.Object[]) {
-    this.CPSmax = this.calculateCPS(keys, this.digramFrequencies);
-    this.maxPredictedWPM = this.calculateMaxPredictedWPM();
+    if(this.isDraw) {
+      this.CPSmax = this.calculateCPS(keys, this.digramFrequencies);
+      this.maxPredictedWPM = this.calculateMaxPredictedWPM();
+    }
   }
 }
