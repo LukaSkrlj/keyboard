@@ -54,12 +54,12 @@
   <div class="data-container">
     <div *ngIf="isDraw" class="coefficient-inputs">
       <mat-form-field>
-        <mat-label>Coefficient A:</mat-label>
+        <mat-label>Coefficient A (s):</mat-label>
         <input (input)="onInputParametersChange(this.canvas.getObjects())" [(ngModel)]="coefficientA" id="coefficientA"
                matInput type="number">
       </mat-form-field>
       <mat-form-field>
-        <mat-label>Coefficient B:</mat-label>
+        <mat-label>Coefficient B (s/bit):</mat-label>
         <input (input)="onInputParametersChange(this.canvas.getObjects())" [(ngModel)]="coefficientB" id="coefficientB"
                matInput
                type="number">

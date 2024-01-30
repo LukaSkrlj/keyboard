@@ -61,8 +61,8 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
   // CALCULATING PREDICTED WPM MAX
   CPSmax: number;
   digramFrequencies: Map<string, number> = new Map();
-  coefficientA: number = 113.53;
-  coefficientB: number = 147.43;
+  coefficientA: number = 0.11353;
+  coefficientB: number = 0.14743;
   maxPredictedWPM: number = 0.0;
   private allFabricEvents = [
     'after:render',
@@ -485,7 +485,7 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
         }
         const digram = letterI + letterJ;
         const Pij = digramFrequencies.get(digram);
-        if (!Pij) {
+        if (Pij === undefined) {
           console.log('ERROR: DIGRAM NOT FOUND ' + digram);
           return NaN;
         }
