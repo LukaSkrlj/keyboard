@@ -145,12 +145,12 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
         obj.on('mousedown', (options) => {
           if (this.textArea) {
             const letter = obj.toObject().objects[1].text;
+            const cursorPosition = this.getCursorPosition(
+              this.textArea,
+              options.e,
+            );
+            const currentText = this.textArea.value;
             if (!this.specialChars.includes(letter)) {
-              const cursorPosition = this.getCursorPosition(
-                this.textArea,
-                options.e,
-              );
-              const currentText = this.textArea.value;
               if (letter === 'Backspace') {
                 this.textArea.value =
                   currentText.substring(0, cursorPosition.start - 1) +
@@ -173,10 +173,18 @@ export class KeyboardComponent implements OnInit, AfterViewInit {
               }
             }
             if (letter === 'Enter' || letter === 'enter') {
-              this.textArea.value += '\r\n';
+              this.textArea.value = currentText.substring(0, cursorPosition.start) +
+              '\r\n' +
+              currentText.substring(cursorPosition.end);
+              const newCursorPosition = cursorPosition.start + letter.length;
+              this.setCursorPosition(this.textArea, newCursorPosition);
             }
             if (letter === 'Space' || letter === 'space') {
-              this.textArea.value += ' ';
+              const newCursorPosition = cursorPosition.start + 1;
+              this.textArea.value = currentText.substring(0, cursorPosition.start) +
+                ' ' +
+                currentText.substring(cursorPosition.end);
+              this.setCursorPosition(this.textArea, newCursorPosition);
             }
             if (
               letter === 'CapsLock' ||
